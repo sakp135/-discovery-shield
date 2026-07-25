@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery Shield — Blinkit</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #F8F8F8;
+  color: #1C1C1C;
+  min-height: 100vh;
+}
+
+.header {
+  background: #0C831F;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header img {
+  width: 32px;
+  height: 32px;
+}
+
+.header h1 {
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.header span {
+  color: #FFDE00;
+  font-size: 13px;
+  margin-left: auto;
+  background: rgba(0,0,0,0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+
+/* Cart Items */
+.cart-item {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.item-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.item-info { flex: 1; }
+.item-name { font-size: 14px; font-weight: 600; }
+.item-qty { font-size: 12px; color: #888; margin-top: 2px; }
+.item-price { font-size: 14px; font-weight: 700; color: #0C831F; }
+
+/* Discovery Shield Card */
+.shield-card {
+  background: linear-gradient(135deg, #0C831F 0%, #1AAD2E 100%);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 8px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: none;
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shield-card::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+
+.shield-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.shield-icon {
+  font-size: 28px;
+}
+
+.shield-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.shield-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.shield-reason {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.shield-guarantee {
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shield-guarantee-icon { font-size: 20px; }
+
+.shield-guarantee-text {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+.shield-guarantee-text strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.shield-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-explore {
+  flex: 1;
+  background: white;
+  color: #0C831F;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.btn-explore:active { transform: scale(0.97); }
+
+.btn-skip {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Products Panel */
+.products-panel {
+  display: none;
+  animation: slideUp 0.3s ease;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.product-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #F0FFF4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.product-info { flex: 1; }
+.product-name { font-size: 14px; font-weight: 600; }
+.product-desc { font-size: 12px; color: #888; margin-top: 2px; }
+
+.product-right { text-align: right; }
+.product-price { font-size: 15px; font-weight: 700; color: #0C831F; }
+
+.shield-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #E8F5E9;
+  color: #0C831F;
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.btn-add {
+  background: #0C831F;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  display: block;
+  width: 100%;
+}
+
+/* Cart Summary */
+.cart-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.summary-row.total {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1C1C1C;
+  padding-top: 8px;
+  border-top: 1px solid #F0F0F0;
+  margin-top: 4px;
+}
+
+.btn-checkout {
+  width: 100%;
+  background: #0C831F;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.2s;
+}
+
+.btn-checkout:hover { background: #0a7019; }
+
+/* Signal selector */
+.signal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.signal-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.signal-card p {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.signal-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #F0F0F0;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chip.selected {
+  background: #E8F5E9;
+  border-color: #0C831F;
+  color: #0C831F;
+}
+
+.btn-detect {
+  width: 100%;
+  background: #0C831F;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 14px;
+}
+
+.intro-box {
+  background: #E8F5E9;
+  border-left: 4px solid #0C831F;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #1C1C1C;
+  line-height: 1.6;
+}
+
+.intro-box strong { color: #0C831F; }
+
+/* Success state */
+.success-banner {
+  background: #0C831F;
+  color: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  margin-top: 16px;
+  display: none;
+  animation: slideUp 0.3s ease;
+}
+
+.success-banner .big { font-size: 32px; margin-bottom: 8px; }
+.success-banner h3 { font-size: 16px; font-weight: 700; }
+.success-banner p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.2s;
+}
+
+.tab.active {
+  background: #0C831F;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="font-size:28px">🛒</div>
+  <h1>Blinkit</h1>
+  <span>🛡️ Discovery Shield</span>
+</div>
+
+<div class="container">
+
+  <div class="intro-box">
+    <strong>Discovery Shield MVP</strong> — This prototype demonstrates how AI detects life signals from your order history and surfaces one relevant new category with a guaranteed easy return. Built for the Blinkit Growth Team PM case study.
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('demo')">Live Demo</div>
+    <div class="tab" onclick="showTab('how')">How It Works</div>
+  </div>
+
+  <!-- DEMO TAB -->
+  <div id="tab-demo">
+
+    <!-- Step 1: Signal Selection -->
+    <div id="step-signal">
+      <div class="signal-card">
+        <h3>Your recent Blinkit orders include:</h3>
+        <p>Select what you have been ordering to see Discovery Shield in action</p>
+        <div class="signal-chips">
+          <div class="chip" onclick="toggleChip(this)" data-signal="baby">🍼 Baby food</div>
+          <div class="chip" onclick="toggleChip(this)" data-signal="pet">🐾 Pet treats</div>
+          <div class="chip" onclick="toggleChip(this)" data-signal="fitness">💪 Protein powder</div>
+          <div class="chip" onclick="toggleChip(this)" data-signal="gift">🎁 Gift items</div>
+          <div class="chip" onclick="toggleChip(this)" data-signal="grocery">🥛 Milk and eggs</div>
+          <div class="chip" onclick="toggleChip(this)" data-signal="night">🌙 Late night orders</div>
+        </div>
+        <button class="btn-detect" onclick="detectSignal()">
+          Detect My Life Signal →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Cart View with Shield -->
+    <div id="step-cart" style="display:none">
+
+      <div class="section-title">Your Cart</div>
+
+      <div class="cart-item">
+        <div class="item-icon" style="background:#FFF8E7">🥛</div>
+        <div class="item-info">
+          <div class="item-name">Amul Full Cream Milk 1L</div>
+          <div class="item-qty">Qty: 2</div>
+        </div>
+        <div class="item-price">₹114</div>
+      </div>
+
+      <div class="cart-item">
+        <div class="item-icon" style="background:#F0FFF4">🥦</div>
+        <div class="item-info">
+          <div class="item-name">Fresh Vegetables Pack</div>
+          <div class="item-qty">Qty: 1</div>
+        </div>
+        <div class="item-price">₹89</div>
+      </div>
+
+      <div class="cart-item">
+        <div class="item-icon" style="background:#FFF0F0">🍳</div>
+        <div class="item-info">
+          <div class="item-name">Farm Fresh Eggs (12 pack)</div>
+          <div class="item-qty">Qty: 1</div>
+        </div>
+        <div class="item-price">₹84</div>
+      </div>
+
+      <!-- Discovery Shield Nudge -->
+      <div class="section-title" id="shield-section-title" 
+           style="display:none">
+        🛡️ Discovery Shield
+      </div>
+
+      <div class="shield-card" id="shield-card">
+        <div class="shield-badge">
+          <div class="shield-icon">🛡️</div>
+          <div class="shield-label">AI-Detected for You</div>
+        </div>
+        <div class="shield-title" id="shield-title">
+          Try Baby Care — Perfect for Right Now
+        </div>
+        <div class="shield-reason" id="shield-reason">
+          You have been ordering baby food regularly. 
+          Complete your baby care routine with trusted 
+          products — diapers, wipes, and skincare 
+          all available in 10 minutes.
+        </div>
+        <div class="shield-guarantee">
+          <div class="shield-guarantee-icon">✅</div>
+          <div class="shield-guarantee-text">
+            <strong>Discovery Shield Active</strong>
+            Your first order in this category is 
+            protected. Easy return within 24 hours — 
+            no questions asked.
+          </div>
+        </div>
+        <div class="shield-buttons">
+          <button class="btn-explore" 
+                  onclick="exploreCategory()">
+            Explore with Shield →
+          </button>
+          <button class="btn-skip" 
+                  onclick="skipNudge()">
+            Skip
+          </button>
+        </div>
+      </div>
+
+      <!-- Products Panel -->
+      <div class="products-panel" id="products-panel">
+        <div class="section-title" id="products-title">
+          Baby Care — Shield Protected
+        </div>
+
+        <div id="products-list"></div>
+
+        <button class="btn-checkout" 
+                onclick="showSuccess()">
+          Proceed to Checkout →
+        </button>
+      </div>
+
+      <!-- Cart Summary (shown when shield skipped) -->
+      <div id="cart-summary-normal" style="display:none">
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Item total</span>
+            <span>₹287</span>
+          </div>
+          <div class="summary-row">
+            <span>Delivery fee</span>
+            <span>₹25</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>₹312</span>
+          </div>
+        </div>
+        <button class="btn-checkout" 
+                onclick="showSuccess()">
+          Proceed to Checkout →
+        </button>
+      </div>
+
+      <!-- Success -->
+      <div class="success-banner" id="success-banner">
+        <div class="big">🎉</div>
+        <h3>Order Placed Successfully!</h3>
+        <p id="success-text">
+          Your Discovery Shield is active for 
+          this new category. If anything is not 
+          right, return within 24 hours — 
+          no questions asked.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS TAB -->
+  <div id="tab-how" style="display:none">
+    <div class="signal-card">
+      <h3>🔍 Step 1 — AI Life Signal Detection</h3>
+      <p>AI reads your order history to detect life context signals — new baby, new pet, fitness journey, gifting occasion, late-night impulse window.</p>
+    </div>
+    <div class="signal-card">
+      <h3>🛒 Step 2 — Contextual Nudge at Cart</h3>
+      <p>At cart screen — when your wallet is already open — ONE relevant new category suggestion appears. Not three. Not a list. One, with a personalized reason why it fits you right now.</p>
+    </div>
+    <div class="signal-card">
+      <h3>🛡️ Step 3 — Discovery Shield Activates</h3>
+      <p>Your first purchase in any new category is automatically protected. Easy return within 24 hours, no questions asked. This removes the biggest barrier our research identified — fear of being stuck with a bad product.</p>
+    </div>
+    <div class="signal-card">
+      <h3>🔄 Step 4 — Habit Reinforcement</h3>
+      <p>After successful trial, a follow-up nudge encourages the second purchase. This converts a one-time trial into a new category habit — solving the 75% drop-off problem our interviews revealed.</p>
+    </div>
+    <div class="signal-card" style="background:#E8F5E9; border: 1px solid #0C831F">
+      <h3 style="color:#0C831F">📊 Research Behind This</h3>
+      <p>Primary research (N=7 interviews, July 2026) showed:<br><br>
+      • 66.7% would try new category IF return guaranteed<br>
+      • 83% discovered new categories only through urgency<br>
+      • 75% tried once then stopped — habit never formed<br>
+      • Trust gap: Grocery 4.3/5 vs Non-grocery 3.2/5<br><br>
+      Discovery Shield directly addresses all four findings.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const signals = {
+  baby: {
+    title: "Try Baby Care — Perfect for Right Now",
+    reason: "You have been ordering baby food regularly. Complete your baby care routine with trusted products — diapers, wipes, and skincare all available in 10 minutes.",
+    category: "Baby Care",
+    products: [
+      { icon: "🧴", name: "Pampers Baby Wipes (72 count)", desc: "Gentle on baby skin · 0% alcohol", price: "₹199" },
+      { icon: "🩲", name: "Pampers Diapers Size 2 (20 count)", desc: "All night protection · Soft waistband", price: "₹449" },
+      { icon: "🧸", name: "Johnson's Baby Lotion 200ml", desc: "Dermatologist tested · No tears", price: "₹165" }
+    ]
+  },
+  pet: {
+    title: "Try Pet Care — Your Pet Deserves More",
+    reason: "You have been ordering pet treats regularly. Complete your pet care routine with grooming, health, and play products — delivered in 10 minutes.",
+    category: "Pet Care",
+    products: [
+      { icon: "🧴", name: "Wahl Pet Shampoo 500ml", desc: "Gentle formula · Vet recommended", price: "₹299" },
+      { icon: "🦷", name: "Beaphar Dental Spray for Pets", desc: "Fights bad breath · Easy to use", price: "₹349" },
+      { icon: "🎾", name: "Kong Classic Dog Toy Medium", desc: "Durable rubber · Treat dispensing", price: "₹599" }
+    ]
+  },
+  fitness: {
+    title: "Try Fitness Essentials — Support Your Journey",
+    reason: "You have been ordering protein powder regularly. Complete your fitness routine with supplements, accessories, and recovery products in 10 minutes.",
+    category: "Fitness",
+    products: [
+      { icon: "💊", name: "MuscleBlaze Vitamin D3 (60 tabs)", desc: "Supports muscle function · 2000 IU", price: "₹299" },
+      { icon: "🥤", name: "Boldfit Shaker Bottle 700ml", desc: "Leak proof · Easy grip", price: "₹349" },
+      { icon: "🏋️", name: "Strauss Resistance Band Set", desc: "5 resistance levels · Anti-snap", price: "₹499" }
+    ]
+  },
+  gift: {
+    title: "Try Gifting — Make Someone's Day",
+    reason: "You have ordered gifts before. With Discovery Shield, explore our curated gifting section — chocolates, candles, and personal care gift sets delivered in 10 minutes.",
+    category: "Gifting",
+    products: [
+      { icon: "🍫", name: "Ferrero Rocher T16 Gift Box", desc: "Premium chocolates · Gift wrapped", price: "₹449" },
+      { icon: "🕯️", name: "Iris Home Fragrance Candle Set", desc: "3 scents · 25 hour burn time", price: "₹399" },
+      { icon: "🧴", name: "The Body Shop Gift Set", desc: "Strawberry body butter + scrub", price: "₹899" }
+    ]
+  },
+  grocery: {
+    title: "Try Personal Care — Upgrade Your Daily Routine",
+    reason: "You stock up on daily essentials regularly. Personal care products are just as essential — and with Discovery Shield, your first order is fully protected.",
+    category: "Personal Care",
+    products: [
+      { icon: "🧴", name: "Dove Body Wash 500ml", desc: "Moisturising formula · Gentle daily use", price: "₹249" },
+      { icon: "🧴", name: "Mamaearth Onion Shampoo 250ml", desc: "Reduces hair fall · Paraben free", price: "₹199" },
+      { icon: "☀️", name: "Neutrogena Sunscreen SPF50 88ml", desc: "Lightweight · Non-greasy formula", price: "₹399" }
+    ]
+  },
+  night: {
+    title: "Late Night Craving? Try Snacks and Drinks",
+    reason: "You tend to order late at night. This is the perfect time to explore our premium snacks and beverages — things you would not normally add to your weekly grocery list.",
+    category: "Premium Snacks",
+    products: [
+      { icon: "🍿", name: "Baked Ruffles Cream and Onion 134g", desc: "30% less fat · Perfectly seasoned", price: "₹99" },
+      { icon: "🧃", name: "Raw Pressery Cold Pressed Juice", desc: "No preservatives · 250ml", price: "₹149" },
+      { icon: "🍫", name: "Cadbury Silk Oreo 130g", desc: "Limited edition · Premium chocolate", price: "₹189" }
+    ]
+  }
+};
+
+let selectedSignal = null;
+let shieldUsed = false;
+
+function toggleChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSignal = el.dataset.signal;
+}
+
+function detectSignal() {
+  if (!selectedSignal) {
+    alert('Please select at least one item from your recent orders');
+    return;
+  }
+
+  document.getElementById('step-signal').style.display = 'none';
+  document.getElementById('step-cart').style.display = 'block';
+
+  setTimeout(() => {
+    const data = signals[selectedSignal];
+    document.getElementById('shield-title').textContent = data.title;
+    document.getElementById('shield-reason').textContent = data.reason;
+    document.getElementById('shield-section-title').style.display = 'block';
+    document.getElementById('shield-card').style.display = 'block';
+  }, 800);
+}
+
+function exploreCategory() {
+  const data = signals[selectedSignal];
+  shieldUsed = true;
+
+  document.getElementById('shield-card').style.display = 'none';
+  document.getElementById('products-title').textContent = 
+    data.category + ' — 🛡️ Shield Protected';
+
+  let html = '';
+  data.products.forEach(p => {
+    html += `
+      <div class="product-card">
+        <div class="product-icon">${p.icon}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.desc}</div>
+          <div class="shield-tag">🛡️ Shield Protected</div>
+        </div>
+        <div class="product-right">
+          <div class="product-price">${p.price}</div>
+          <button class="btn-add" onclick="addToCart(this)">Add</button>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById('products-list').innerHTML = html;
+  document.getElementById('products-panel').style.display = 'block';
+}
+
+function addToCart(btn) {
+  btn.textContent = '✓ Added';
+  btn.style.background = '#1AAD2E';
+  btn.disabled = true;
+}
+
+function skipNudge() {
+  document.getElementById('shield-card').style.display = 'none';
+  document.getElementById('shield-section-title').style.display = 'none';
+  document.getElementById('cart-summary-normal').style.display = 'block';
+}
+
+function showSuccess() {
+  const data = signals[selectedSignal];
+  document.getElementById('products-panel').style.display = 'none';
+  document.getElementById('cart-summary-normal').style.display = 'none';
+
+  const successText = shieldUsed
+    ? `Your Discovery Shield is active for ${data ? data.category : 'your new category'}. If anything is not right, return within 24 hours — no questions asked.`
+    : 'Your order is confirmed and on the way!';
+
+  document.getElementById('success-text').textContent = successText;
+  document.getElementById('success-banner').style.display = 'block';
+
+  setTimeout(() => {
+    document.getElementById('success-banner').scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }, 100);
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-demo').style.display = 'none';
+  document.getElementById('tab-how').style.display = 'none';
+
+  if (tab === 'demo') {
+    document.getElementById('tab-demo').style.display = 'block';
+    document.querySelectorAll('.tab')[0].classList.add('active');
+  } else {
+    document.getElementById('tab-how').style.display = 'block';
+    document.querySelectorAll('.tab')[1].classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>
