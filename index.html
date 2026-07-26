@@ -5,260 +5,237 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Blinkit</title>
 <style>
-/* ── RESET ── */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
-/* ── TOKENS (Blinkit exact palette) ── */
 :root {
-  --blinkit-green: #0C831F;
-  --blinkit-green-dark: #0a6e1a;
-  --blinkit-yellow: #F8C200;
+  --green: #0C831F;
+  --green-dark: #0a6e1a;
+  --yellow: #F8C200;
   --surface: #FFFFFF;
   --bg: #F3F3F3;
-  --text-primary: #1C1C1C;
-  --text-secondary: #666666;
-  --text-muted: #999999;
+  --text: #1C1C1C;
+  --muted: #666666;
+  --light: #999999;
   --border: #EBEBEB;
-  --shield-green: #E8F5E9;
+  --shield-bg: #E8F5E9;
   --shield-border: #A5D6A7;
-  --danger: #D32F2F;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --font: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
 }
+body { font-family: -apple-system,'SF Pro Display','Segoe UI',sans-serif; background:var(--bg); color:var(--text); max-width:390px; margin:0 auto; min-height:100vh; }
 
-body { font-family: var(--font); background: var(--bg); color: var(--text-primary); max-width: 390px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+/* STATUS */
+.status { background:var(--green); display:flex; justify-content:space-between; padding:10px 18px 6px; }
+.status span { color:white; font-size:12px; font-weight:700; }
 
-/* ── STATUS BAR ── */
-.status { background: var(--blinkit-green); display:flex; justify-content:space-between; align-items:center; padding: 10px 18px 6px; }
-.status-time { color:white; font-size:13px; font-weight:700; }
-.status-icons { color:white; font-size:11px; letter-spacing:1px; }
-
-/* ── TOP NAV ── */
-.topnav { background: var(--blinkit-green); padding: 6px 14px 14px; }
+/* TOP NAV */
+.topnav { background:var(--green); padding:6px 14px 14px; }
 .delivery-row { display:flex; align-items:center; gap:5px; margin-bottom:9px; }
-.delivery-label { color:rgba(255,255,255,0.75); font-size:11px; font-weight:500; }
-.delivery-time { color:white; font-size:13px; font-weight:700; }
-.delivery-loc { color:rgba(255,255,255,0.9); font-size:12px; }
-.chevron { color:white; font-size:11px; }
-.searchbar { background:white; border-radius:var(--radius-sm); padding:10px 12px; display:flex; align-items:center; gap:8px; }
-.search-icon { font-size:15px; color:#888; }
-.search-text { font-size:13px; color:#AAAAAA; }
+.d-label { color:rgba(255,255,255,0.75); font-size:11px; }
+.d-time { color:white; font-size:13px; font-weight:700; }
+.d-dot { color:rgba(255,255,255,0.5); font-size:11px; margin:0 3px; }
+.d-loc { color:rgba(255,255,255,0.9); font-size:12px; }
+.d-chevron { color:white; font-size:11px; }
+.searchbar { background:white; border-radius:6px; padding:10px 12px; display:flex; align-items:center; gap:8px; }
+.s-icon { font-size:15px; color:#888; }
+.s-text { font-size:13px; color:#AAAAAA; }
 
-/* ── CART HEADER ── */
+/* CART HEADER */
 .cart-head { background:white; display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); gap:12px; position:sticky; top:0; z-index:10; }
-.back { font-size:18px; color:var(--text-primary); cursor:pointer; padding:2px 4px; }
-.cart-head-title { font-size:16px; font-weight:700; flex:1; }
-.cart-head-count { font-size:12px; color:var(--text-muted); }
+.back { font-size:18px; cursor:pointer; }
+.ch-title { font-size:16px; font-weight:700; flex:1; }
+.ch-count { font-size:12px; color:var(--light); }
 
-/* ── ARRIVING STRIP ── */
+/* ARRIVING */
 .arriving { background:#FFF8E1; display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid #FFE082; }
-.arriving-bolt { color:var(--blinkit-green); font-size:14px; }
-.arriving-text { font-size:12px; font-weight:600; color:var(--blinkit-green); }
-.arriving-sub { font-size:11px; color:#888; margin-left:auto; }
+.arr-text { font-size:12px; font-weight:600; color:var(--green); }
+.arr-sub { font-size:11px; color:#888; margin-left:auto; }
 
-/* ── SECTION HEADER ── */
-.section-hdr { background:var(--bg); padding:10px 16px 5px; font-size:11px; font-weight:700; color:var(--text-muted); letter-spacing:0.6px; text-transform:uppercase; }
+/* SECTION HDR */
+.shdr { background:var(--bg); padding:10px 16px 5px; font-size:11px; font-weight:700; color:var(--light); letter-spacing:0.6px; text-transform:uppercase; }
 
-/* ── CART ITEMS ── */
-.cart-item { background:white; display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); gap:10px; }
-.item-thumb { width:58px; height:58px; border-radius:var(--radius-sm); background:#F8F8F8; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
-.item-body { flex:1; min-width:0; }
-.item-name { font-size:13px; font-weight:600; color:var(--text-primary); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.item-unit { font-size:11px; color:var(--text-muted); margin-top:2px; }
-.item-price { font-size:14px; font-weight:700; color:var(--text-primary); margin-top:5px; }
-.qty-wrap { display:flex; align-items:center; border:1.5px solid var(--blinkit-green); border-radius:var(--radius-sm); overflow:hidden; flex-shrink:0; }
-.qty-btn { width:30px; height:30px; border:none; background:white; color:var(--blinkit-green); font-size:18px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
-.qty-num { width:28px; height:30px; background:var(--blinkit-green); color:white; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+/* CART ITEMS */
+.ci { background:white; display:flex; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); gap:10px; }
+.ci-thumb { width:58px; height:58px; border-radius:6px; background:#F8F8F8; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
+.ci-body { flex:1; min-width:0; }
+.ci-name { font-size:13px; font-weight:600; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ci-unit { font-size:11px; color:var(--light); margin-top:2px; }
+.ci-price { font-size:14px; font-weight:700; margin-top:5px; }
+.qty { display:flex; align-items:center; border:1.5px solid var(--green); border-radius:6px; overflow:hidden; flex-shrink:0; }
+.qb { width:30px; height:30px; border:none; background:white; color:var(--green); font-size:18px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.qn { width:28px; height:30px; background:var(--green); color:white; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
 
-/* ── DISCOVERY SECTION ── */
-.discovery-section { display:none; }
+/* DEMO PANEL */
+.demo { background:white; padding:16px; border-top:3px solid var(--yellow); }
+.demo-title { font-size:12px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.demo-sub { font-size:11px; color:var(--light); margin-bottom:12px; line-height:1.4; }
+.chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.chip { border:1.5px solid var(--border); border-radius:20px; padding:6px 12px; font-size:11px; font-weight:500; color:var(--muted); background:white; cursor:pointer; transition:all 0.15s; }
+.chip.on { border-color:var(--green); background:var(--shield-bg); color:var(--green); }
+.go-btn { width:100%; background:var(--green); color:white; border:none; border-radius:6px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; }
+.go-btn:disabled { background:#C8C8C8; cursor:not-allowed; }
+.err { background:#FFF3E0; border:1px solid #FFB74D; border-radius:6px; padding:10px 12px; font-size:11px; color:#BF360C; margin-top:8px; display:none; line-height:1.5; }
 
-/* ── DEMO CONTROLS ── */
-.demo-panel { background:white; margin:0; padding:16px; border-top:3px solid var(--blinkit-yellow); }
-.demo-label { font-size:12px; font-weight:700; color:var(--blinkit-green); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:flex; align-items:center; gap:5px; }
-.demo-sub { font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4; }
-.chips-wrap { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
-.chip { border:1.5px solid var(--border); border-radius:20px; padding:6px 12px; font-size:11px; font-weight:500; color:var(--text-secondary); background:white; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-.chip.on { border-color:var(--blinkit-green); background:var(--shield-green); color:var(--blinkit-green); }
-.api-wrap { margin-bottom:10px; }
-.api-label { font-size:11px; font-weight:600; color:var(--text-secondary); margin-bottom:5px; }
-.api-input { width:100%; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font-size:12px; font-family:monospace; color:var(--text-primary); background:#FAFAFA; }
-.api-input:focus { outline:none; border-color:var(--blinkit-green); }
-.api-note { font-size:10px; color:var(--text-muted); margin-top:4px; }
-.detect-btn { width:100%; background:var(--blinkit-green); color:white; border:none; border-radius:var(--radius-sm); padding:13px; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:0.2px; }
-.detect-btn:disabled { background:#C8C8C8; cursor:not-allowed; }
-.err { background:#FFF3E0; border:1px solid #FFB74D; border-radius:var(--radius-sm); padding:10px 12px; font-size:11px; color:#BF360C; margin-top:8px; display:none; line-height:1.5; }
-
-/* ── LOADING ── */
+/* LOADING */
 .loading { background:white; padding:24px 16px; text-align:center; display:none; }
 .dots { display:flex; justify-content:center; gap:5px; margin-bottom:10px; }
-.dot { width:7px; height:7px; background:var(--blinkit-green); border-radius:50%; animation:pulse 1.2s ease-in-out infinite; }
-.dot:nth-child(2){animation-delay:0.2s}
-.dot:nth-child(3){animation-delay:0.4s}
-@keyframes pulse { 0%,80%,100%{transform:scale(0.8);opacity:0.5} 40%{transform:scale(1.1);opacity:1} }
-.load-text { font-size:12px; color:var(--text-muted); }
+.dot { width:7px; height:7px; background:var(--green); border-radius:50%; animation:pulse 1.2s ease-in-out infinite; }
+.dot:nth-child(2){animation-delay:0.2s} .dot:nth-child(3){animation-delay:0.4s}
+@keyframes pulse{0%,80%,100%{transform:scale(0.8);opacity:0.5}40%{transform:scale(1.1);opacity:1}}
+.load-text { font-size:12px; color:var(--light); }
 
-/* ── SHIELD NUDGE (Order Confirmation placement) ── */
-.confirm-banner { background:var(--blinkit-green); padding:14px 16px; display:none; }
+/* BILL */
+.bill { background:white; padding:14px 16px; margin-top:6px; }
+.bill-title { font-size:13px; font-weight:700; margin-bottom:12px; }
+.bill-row { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:8px; }
+.bill-divider { border:none; border-top:1px dashed var(--border); margin:8px 0; }
+.bill-total { display:flex; justify-content:space-between; font-size:14px; font-weight:700; }
+.save-tag { background:var(--shield-bg); color:var(--green); font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; }
+
+/* PAYMENT */
+.pay-row { background:white; display:flex; align-items:center; gap:10px; padding:13px 16px; margin-top:6px; }
+.pay-text { font-size:13px; font-weight:600; flex:1; }
+.pay-change { font-size:12px; color:var(--green); font-weight:600; }
+
+/* CTA */
+.cta { position:sticky; bottom:0; background:white; padding:12px 14px; border-top:1px solid var(--border); box-shadow:0 -3px 12px rgba(0,0,0,0.08); }
+.cta-btn { width:100%; background:var(--green); color:white; border:none; border-radius:6px; padding:15px 18px; font-size:15px; font-weight:700; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.cta-total { font-size:12px; opacity:0.85; }
+
+/* SUCCESS SCREEN */
+.success-screen { display:none; background:white; min-height:100vh; }
+.confirm-banner { background:var(--green); padding:14px 16px; }
 .confirm-top { display:flex; align-items:center; gap:8px; margin-bottom:2px; }
-.confirm-check { width:22px; height:22px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--blinkit-green); font-weight:700; flex-shrink:0; }
+.confirm-check { width:22px; height:22px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--green); font-weight:700; flex-shrink:0; }
 .confirm-title { font-size:14px; font-weight:700; color:white; }
 .confirm-sub { font-size:11px; color:rgba(255,255,255,0.8); padding-left:30px; }
 
-.shield-nudge { background:white; border-left:4px solid var(--blinkit-green); margin:0; display:none; }
+/* SHIELD NUDGE */
+.shield-nudge { background:white; border-left:4px solid var(--green); display:none; }
 .nudge-inner { padding:14px 16px; }
 .nudge-eyebrow { display:flex; align-items:center; gap:5px; margin-bottom:8px; }
-.nudge-tag { background:var(--shield-green); color:var(--blinkit-green); font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:0.4px; }
-.nudge-heading { font-size:15px; font-weight:700; color:var(--text-primary); line-height:1.35; margin-bottom:5px; }
-.nudge-reason { font-size:12px; color:var(--text-secondary); line-height:1.55; margin-bottom:12px; }
-.shield-pill { background:var(--shield-green); border:1px solid var(--shield-border); border-radius:var(--radius-sm); padding:10px 12px; display:flex; align-items:flex-start; gap:8px; margin-bottom:12px; }
-.shield-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
-.shield-pill-text { font-size:11px; color:#2E7D32; line-height:1.5; }
-.shield-pill-text strong { display:block; font-size:12px; margin-bottom:1px; }
-.nudge-btns { display:flex; gap:8px; }
-.btn-try { flex:1; background:var(--blinkit-green); color:white; border:none; border-radius:var(--radius-sm); padding:12px; font-size:13px; font-weight:700; cursor:pointer; }
-.btn-later { background:white; color:var(--text-secondary); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; cursor:pointer; }
+.nudge-tag { background:var(--shield-bg); color:var(--green); font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:0.4px; }
+.nudge-heading { font-size:15px; font-weight:700; line-height:1.35; margin-bottom:5px; }
+.nudge-reason { font-size:12px; color:var(--muted); line-height:1.55; margin-bottom:12px; }
 
-/* ── PRODUCTS ── */
+/* SHIELD GUARANTEE */
+.shield-pill { background:var(--shield-bg); border:1px solid var(--shield-border); border-radius:10px; padding:10px 12px; margin-bottom:10px; }
+.shield-pill-title { font-size:12px; font-weight:700; color:#1B5E20; margin-bottom:4px; display:flex; align-items:center; gap:5px; }
+.shield-pill-body { font-size:11px; color:#2E7D32; line-height:1.6; }
+
+/* RETURN PROCESS */
+.return-process { background:#F8F8F8; border-radius:8px; padding:10px 12px; margin-bottom:12px; }
+.return-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.3px; }
+.return-step { display:flex; align-items:flex-start; gap:8px; margin-bottom:7px; }
+.step-num { width:18px; height:18px; border-radius:50%; background:var(--green); color:white; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-text { font-size:11px; color:var(--muted); line-height:1.4; }
+.step-text strong { color:var(--text); }
+
+/* SEAL BADGE */
+.seal-badge { display:flex; align-items:center; gap:6px; background:#E3F2FD; border:1px solid #90CAF9; border-radius:8px; padding:8px 10px; margin-bottom:12px; }
+.seal-icon { font-size:16px; }
+.seal-text { font-size:11px; color:#1565C0; line-height:1.4; }
+.seal-text strong { display:block; font-size:12px; margin-bottom:1px; }
+
+.nudge-btns { display:flex; gap:8px; }
+.btn-try { flex:1; background:var(--green); color:white; border:none; border-radius:8px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-later { background:white; color:var(--muted); border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; font-size:12px; cursor:pointer; }
+
+/* PRODUCTS */
 .products-area { display:none; }
 .prod-item { background:white; display:flex; align-items:center; padding:13px 16px; border-bottom:1px solid var(--border); gap:10px; }
-.prod-thumb { width:62px; height:62px; border-radius:var(--radius-sm); background:#F8F8F8; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
+.prod-thumb { width:62px; height:62px; border-radius:8px; background:#F8F8F8; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
 .prod-body { flex:1; min-width:0; }
-.prod-name { font-size:13px; font-weight:600; color:var(--text-primary); line-height:1.3; }
-.prod-unit { font-size:11px; color:var(--text-muted); margin-top:1px; }
-.shield-micro { display:inline-flex; align-items:center; gap:3px; background:var(--shield-green); color:var(--blinkit-green); font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; margin-top:4px; }
+.prod-name { font-size:13px; font-weight:600; line-height:1.3; }
+.shield-micro { display:inline-flex; align-items:center; gap:3px; background:var(--shield-bg); color:var(--green); font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; margin-top:4px; }
 .prod-right { text-align:right; flex-shrink:0; }
 .prod-price { font-size:14px; font-weight:700; margin-bottom:6px; }
-.add-btn { border:1.5px solid var(--blinkit-green); color:var(--blinkit-green); background:white; border-radius:var(--radius-sm); padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; }
-.add-btn.added { background:var(--blinkit-green); color:white; border-color:var(--blinkit-green); }
+.add-btn { border:1.5px solid var(--green); color:var(--green); background:white; border-radius:6px; padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; }
+.add-btn.added { background:var(--green); color:white; }
 
-/* ── BILL ── */
-.bill { background:white; padding:14px 16px; margin-top:6px; }
-.bill-title { font-size:13px; font-weight:700; margin-bottom:12px; }
-.bill-row { display:flex; justify-content:space-between; font-size:12px; color:var(--text-secondary); margin-bottom:8px; }
-.bill-row.savings { color:var(--blinkit-green); }
-.bill-divider { border:none; border-top:1px dashed var(--border); margin:8px 0; }
-.bill-total { display:flex; justify-content:space-between; font-size:14px; font-weight:700; color:var(--text-primary); }
-.save-tag { background:var(--shield-green); color:var(--blinkit-green); font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; }
+/* FINAL SUCCESS */
+.final-success { display:none; }
+.fs-top { background:var(--green); padding:30px 20px 24px; text-align:center; }
+.fs-icon { font-size:52px; margin-bottom:12px; }
+.fs-title { font-size:18px; font-weight:700; color:white; margin-bottom:4px; }
+.fs-eta { font-size:13px; color:rgba(255,255,255,0.85); }
+.fs-body { padding:20px 16px; }
+.shield-confirm { background:var(--shield-bg); border:1.5px solid var(--shield-border); border-radius:10px; padding:14px; margin-bottom:16px; }
+.sc-title { font-size:13px; font-weight:700; color:#1B5E20; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.sc-body { font-size:12px; color:#2E7D32; line-height:1.6; }
+.track-btn { width:100%; background:var(--green); color:white; border:none; border-radius:6px; padding:14px; font-size:14px; font-weight:700; cursor:pointer; }
 
-/* ── PAYMENT ── */
-.payment-row { background:white; display:flex; align-items:center; gap:10px; padding:13px 16px; margin-top:6px; border-radius:0; }
-.pay-icon { font-size:18px; }
-.pay-text { font-size:13px; font-weight:600; flex:1; }
-.pay-change { font-size:12px; color:var(--blinkit-green); font-weight:600; }
-
-/* ── CTA BAR ── */
-.cta-bar { position:sticky; bottom:0; background:white; padding:12px 14px; border-top:1px solid var(--border); box-shadow:0 -3px 12px rgba(0,0,0,0.08); }
-.cta-btn { width:100%; background:var(--blinkit-green); color:white; border:none; border-radius:var(--radius-sm); padding:15px 18px; font-size:15px; font-weight:700; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
-.cta-total { font-size:12px; opacity:0.85; font-weight:500; }
-
-/* ── SUCCESS ── */
-.success-screen { display:none; background:white; min-height:100vh; }
-.success-top { background:var(--blinkit-green); padding:30px 20px 24px; text-align:center; }
-.success-animation { font-size:52px; margin-bottom:12px; }
-.success-title { font-size:18px; font-weight:700; color:white; margin-bottom:4px; }
-.success-eta { font-size:13px; color:rgba(255,255,255,0.85); }
-.success-body { padding:20px 16px; }
-.shield-confirm { background:var(--shield-green); border:1.5px solid var(--shield-border); border-radius:var(--radius-md); padding:14px; margin-bottom:16px; }
-.shield-confirm-title { font-size:13px; font-weight:700; color:#1B5E20; margin-bottom:5px; display:flex; align-items:center; gap:6px; }
-.shield-confirm-body { font-size:12px; color:#2E7D32; line-height:1.55; }
-.track-btn { width:100%; background:var(--blinkit-green); color:white; border:none; border-radius:var(--radius-sm); padding:14px; font-size:14px; font-weight:700; cursor:pointer; }
-
-/* ── PHASE LABEL ── */
-.phase-note { background:#FFF8E1; border-left:3px solid var(--blinkit-yellow); padding:9px 12px; font-size:11px; color:#5D4037; line-height:1.5; }
-.phase-note strong { color:#3E2723; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fadein { animation:fadeUp 0.4s ease; }
 </style>
 </head>
 <body>
 
-<!-- STATUS -->
 <div class="status">
-  <span class="status-time">9:41</span>
-  <span class="status-icons">●●● ▲ 🔋</span>
+  <span>9:41</span>
+  <span>●●● ▲ 🔋</span>
 </div>
 
-<!-- TOP NAV -->
 <div class="topnav">
   <div class="delivery-row">
-    <span class="delivery-label">Delivery in</span>
-    <span class="delivery-time">8 mins</span>
-    <span style="color:rgba(255,255,255,0.5);font-size:11px;margin:0 4px">·</span>
-    <span class="delivery-loc">Kothrud, Pune</span>
-    <span class="chevron">▾</span>
+    <span class="d-label">Delivery in</span>
+    <span class="d-time">8 mins</span>
+    <span class="d-dot">·</span>
+    <span class="d-loc">Kothrud, Pune</span>
+    <span class="d-chevron">▾</span>
   </div>
   <div class="searchbar">
-    <span class="search-icon">🔍</span>
-    <span class="search-text">Search "atta", "eggs", "chips"…</span>
+    <span class="s-icon">🔍</span>
+    <span class="s-text">Search "atta", "eggs", "chips"…</span>
   </div>
 </div>
 
-<!-- CART HEADER -->
 <div class="cart-head">
   <span class="back">←</span>
-  <span class="cart-head-title">My Cart</span>
-  <span class="cart-head-count">3 items</span>
+  <span class="ch-title">My Cart</span>
+  <span class="ch-count">3 items</span>
 </div>
 
-<!-- ARRIVING -->
 <div class="arriving">
-  <span class="arriving-bolt">⚡</span>
-  <span class="arriving-text">Arriving in 8 minutes</span>
-  <span class="arriving-sub">Free delivery</span>
+  <span style="color:var(--green);font-size:14px;">⚡</span>
+  <span class="arr-text">Arriving in 8 minutes</span>
+  <span class="arr-sub">Free delivery</span>
 </div>
 
-<!-- ITEMS -->
-<div class="section-hdr">YOUR ITEMS</div>
+<div class="shdr">YOUR ITEMS</div>
 
-<div class="cart-item">
-  <div class="item-thumb">🥛</div>
-  <div class="item-body">
-    <div class="item-name">Amul Gold Full Cream Milk</div>
-    <div class="item-unit">500 ml</div>
-    <div class="item-price">₹34</div>
+<div class="ci">
+  <div class="ci-thumb">🥛</div>
+  <div class="ci-body">
+    <div class="ci-name">Amul Gold Full Cream Milk</div>
+    <div class="ci-unit">500 ml</div>
+    <div class="ci-price">₹34</div>
   </div>
-  <div class="qty-wrap">
-    <button class="qty-btn">−</button>
-    <div class="qty-num">2</div>
-    <button class="qty-btn">+</button>
-  </div>
+  <div class="qty"><button class="qb">−</button><div class="qn">2</div><button class="qb">+</button></div>
 </div>
 
-<div class="cart-item">
-  <div class="item-thumb">🥚</div>
-  <div class="item-body">
-    <div class="item-name">Fresho Farm Eggs</div>
-    <div class="item-unit">6 pieces</div>
-    <div class="item-price">₹54</div>
+<div class="ci">
+  <div class="ci-thumb">🥚</div>
+  <div class="ci-body">
+    <div class="ci-name">Fresho Farm Eggs</div>
+    <div class="ci-unit">6 pieces</div>
+    <div class="ci-price">₹54</div>
   </div>
-  <div class="qty-wrap">
-    <button class="qty-btn">−</button>
-    <div class="qty-num">1</div>
-    <button class="qty-btn">+</button>
-  </div>
+  <div class="qty"><button class="qb">−</button><div class="qn">1</div><button class="qb">+</button></div>
 </div>
 
-<div class="cart-item">
-  <div class="item-thumb">🍌</div>
-  <div class="item-body">
-    <div class="item-name">Fresho Banana</div>
-    <div class="item-unit">6 pcs (approx. 340 g)</div>
-    <div class="item-price">₹29</div>
+<div class="ci">
+  <div class="ci-thumb">🍌</div>
+  <div class="ci-body">
+    <div class="ci-name">Fresho Banana</div>
+    <div class="ci-unit">6 pcs · approx 340g</div>
+    <div class="ci-price">₹29</div>
   </div>
-  <div class="qty-wrap">
-    <button class="qty-btn">−</button>
-    <div class="qty-num">1</div>
-    <button class="qty-btn">+</button>
-  </div>
+  <div class="qty"><button class="qb">−</button><div class="qn">1</div><button class="qb">+</button></div>
 </div>
 
 <!-- DEMO PANEL -->
-<div class="demo-panel" id="demo-panel">
-  <div class="demo-label">🛡️ Discovery Shield — Live Demo</div>
-  <div class="demo-sub">Select your recent order pattern · AI detects your life signal · Shield appears on order confirmation — the highest trust moment</div>
-
-  <div class="chips-wrap">
+<div class="demo" id="demo-panel">
+  <div class="demo-title">🛡️ Discovery Shield — Live Demo</div>
+  <div class="demo-sub">Select your recent order pattern. AI detects your life signal and shows Discovery Shield on your order confirmation — the highest trust moment.</div>
+  <div class="chips">
     <div class="chip" onclick="pick(this,'baby')">🍼 Baby food</div>
     <div class="chip" onclick="pick(this,'pet')">🐾 Pet treats</div>
     <div class="chip" onclick="pick(this,'fitness')">💪 Protein powder</div>
@@ -266,55 +243,37 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
     <div class="chip" onclick="pick(this,'night')">🌙 Late night snacks</div>
     <div class="chip" onclick="pick(this,'grocery')">🛒 Weekly groceries</div>
   </div>
-
-  <div class="api-wrap">
-    <div class="api-label">OpenRouter API Key (free at openrouter.ai)</div>
-    <input class="api-input" id="apikey" type="password" placeholder="sk-or-v1-…"/>
-    <div class="api-note">Stays in your browser · Never stored · Used only for this demo</div>
-  </div>
-
-  <button class="detect-btn" id="detect-btn" onclick="detect()">
-    Place Order & See Discovery Shield →
-  </button>
+  <button class="go-btn" onclick="placeOrder()">Place Order & See Discovery Shield →</button>
   <div class="err" id="err"></div>
-</div>
-
-<!-- LOADING -->
-<div class="loading" id="loading">
-  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-  <div class="load-text">Placing order · AI detecting your life signal…</div>
 </div>
 
 <!-- BILL -->
 <div class="bill" id="bill">
   <div class="bill-title">Bill Details</div>
   <div class="bill-row"><span>MRP Total</span><span>₹151</span></div>
-  <div class="bill-row savings"><span>Product Discount</span><span>− ₹15</span></div>
-  <div class="bill-row"><span>Delivery Fee</span><span style="color:var(--blinkit-green)">FREE</span></div>
+  <div class="bill-row" style="color:var(--green)"><span>Product Discount</span><span>− ₹15</span></div>
+  <div class="bill-row"><span>Delivery Fee</span><span style="color:var(--green)">FREE</span></div>
   <div class="bill-row"><span>Handling Fee</span><span>₹5</span></div>
   <hr class="bill-divider"/>
   <div class="bill-total"><span>Grand Total</span><span>₹141 <span class="save-tag">Save ₹15</span></span></div>
 </div>
 
-<!-- PAYMENT -->
-<div class="payment-row" id="payment-row">
-  <span class="pay-icon">💳</span>
+<div class="pay-row" id="pay-row">
+  <span style="font-size:18px;">💳</span>
   <span class="pay-text">Pay via UPI / Card</span>
   <span class="pay-change">Change</span>
 </div>
 
-<!-- CTA -->
-<div class="cta-bar" id="cta-bar">
+<div class="cta" id="cta">
   <button class="cta-btn" onclick="placeOrder()">
     <span>Proceed to Pay</span>
     <span class="cta-total">₹141 total →</span>
   </button>
 </div>
 
-<!-- SUCCESS SCREEN (with Shield nudge) -->
+<!-- SUCCESS SCREEN -->
 <div class="success-screen" id="success-screen">
 
-  <!-- Order confirmed banner -->
   <div class="confirm-banner" id="confirm-banner">
     <div class="confirm-top">
       <div class="confirm-check">✓</div>
@@ -323,22 +282,56 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
     <div class="confirm-sub">Arriving in 8 mins · Kothrud, Pune</div>
   </div>
 
-  <!-- Shield nudge on confirmation -->
-  <div class="shield-nudge" id="shield-nudge">
+  <!-- SHIELD NUDGE ON ORDER CONFIRMATION -->
+  <div class="shield-nudge fadein" id="shield-nudge">
     <div class="nudge-inner">
       <div class="nudge-eyebrow">
         <span class="nudge-tag">🛡️ Discovery Shield</span>
-        <span style="font-size:10px;color:var(--text-muted)">Just for you</span>
+        <span style="font-size:10px;color:var(--light)">Personalised for you</span>
       </div>
-      <div class="nudge-heading" id="nudge-heading">One more thing while your order is on the way</div>
-      <div class="nudge-reason" id="nudge-reason">Loading…</div>
+      <div class="nudge-heading" id="nudge-heading">Loading...</div>
+      <div class="nudge-reason" id="nudge-reason">Loading...</div>
+
+      <!-- 2 HOUR RETURN GUARANTEE -->
       <div class="shield-pill">
-        <span class="shield-icon">🛡️</span>
-        <div class="shield-pill-text">
-          <strong>First Purchase Protected</strong>
-          Try this category risk-free. Easy return within 24 hours — no questions asked. We noticed this is your first time here.
+        <div class="shield-pill-title">🛡️ Discovery Shield — 2 Hour Return</div>
+        <div class="shield-pill-body">
+          Try this category completely risk-free. Changed your mind? 
+          <strong>Return within 2 hours of delivery.</strong> 
+          Our delivery partner collects it on their next run — no hassle, no forms.
         </div>
       </div>
+
+      <!-- VERIFIED RETURN PROCESS -->
+      <div class="return-process">
+        <div class="return-title">How verified return works</div>
+        <div class="return-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Tap Return within 2 hours</strong> · Select reason: wrong product, damaged, or quality issue</div>
+        </div>
+        <div class="return-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Take one photo</strong> · AI verifies product condition and matches your order instantly</div>
+        </div>
+        <div class="return-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Auto approved in seconds</strong> · Delivery partner collects on next run</div>
+        </div>
+        <div class="return-step" style="margin-bottom:0">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Instant refund</strong> · Processed as soon as product is collected</div>
+        </div>
+      </div>
+
+      <!-- TAMPER SEAL -->
+      <div class="seal-badge">
+        <span class="seal-icon">🔒</span>
+        <div class="seal-text">
+          <strong>Blinkit Shield Seal Applied</strong>
+          This order has a tamper seal. Intact seal = guaranteed genuine return accepted.
+        </div>
+      </div>
+
       <div class="nudge-btns">
         <button class="btn-try" onclick="showProducts()">Explore with Shield →</button>
         <button class="btn-later" onclick="skipShield()">Maybe later</button>
@@ -346,49 +339,51 @@ body { font-family: var(--font); background: var(--bg); color: var(--text-primar
     </div>
   </div>
 
-  <!-- Phase note -->
-  <div class="phase-note" id="phase-note" style="display:none">
-    <strong>Phase 1 MVP:</strong> Simple business rules surface the right category. Phase 2 introduces AI to detect signals <em>before</em> first purchase and personalize at scale.
-  </div>
-
-  <!-- Products -->
-  <div class="products-area" id="products-area">
-    <div class="section-hdr" id="prod-hdr">🛡️ SHIELD PROTECTED — TRY RISK-FREE</div>
+  <!-- PRODUCTS -->
+  <div class="products-area fadein" id="products-area">
+    <div class="shdr" id="prod-hdr">🛡️ SHIELD PROTECTED — TRY RISK-FREE</div>
     <div id="prod-list"></div>
     <div style="padding:14px 16px;background:white;border-top:1px solid var(--border);">
       <button class="track-btn" onclick="showFinal()">Add to Order & Track →</button>
     </div>
   </div>
 
-  <!-- Final success -->
-  <div id="final-success" style="display:none">
-    <div class="success-top">
-      <div class="success-animation">🎉</div>
-      <div class="success-title">Order Updated!</div>
-      <div class="success-eta">Arriving in 10 minutes</div>
+  <!-- FINAL SUCCESS -->
+  <div class="final-success" id="final-success">
+    <div class="fs-top">
+      <div class="fs-icon">🎉</div>
+      <div class="fs-title">Order Updated!</div>
+      <div class="fs-eta">Arriving in 10 minutes</div>
     </div>
-    <div class="success-body">
+    <div class="fs-body">
       <div class="shield-confirm">
-        <div class="shield-confirm-title">🛡️ Discovery Shield Active</div>
-        <div class="shield-confirm-body" id="shield-confirm-text">Your first order in this new category is fully protected. If anything is wrong, return within 24 hours — no questions asked. No forms. No hassle.</div>
+        <div class="sc-title">🛡️ Discovery Shield Active</div>
+        <div class="sc-body" id="sc-body">
+          Your first order in this new category is protected. 
+          Changed your mind? Return within <strong>2 hours of delivery</strong> — 
+          take one photo, AI verifies instantly, our delivery partner 
+          collects on their next run. Refund processed immediately on collection.
+        </div>
       </div>
-      <button class="track-btn" onclick="alert('Track order feature — production Blinkit integration')">Track My Order</button>
+      <button class="track-btn">Track My Order →</button>
     </div>
   </div>
 
 </div>
 
 <script>
+const OPENROUTER_KEY = 'PASTE_YOUR_KEY_HERE';
+
 const CTX = {
-  baby:    { prompt: "User has ordered baby food multiple times. Suggest Baby Care category.", cat: "Baby Care" },
-  pet:     { prompt: "User orders pet treats regularly. Suggest Pet Care category.", cat: "Pet Care" },
-  fitness: { prompt: "User buys protein powder. Suggest Fitness & Supplements category.", cat: "Fitness" },
-  gift:    { prompt: "User ordered gift items recently. Suggest Gifts & Occasions category.", cat: "Gifting" },
-  night:   { prompt: "User places late-night orders (9pm–midnight). Suggest Premium Snacks.", cat: "Premium Snacks" },
-  grocery: { prompt: "User buys groceries weekly. Suggest Personal Care category as natural next.", cat: "Personal Care" }
+  baby:    { prompt: "User ordered baby food multiple times. Suggest Baby Care.", cat: "Baby Care" },
+  pet:     { prompt: "User orders pet treats regularly. Suggest Pet Care.", cat: "Pet Care" },
+  fitness: { prompt: "User buys protein powder. Suggest Fitness Supplements.", cat: "Fitness" },
+  gift:    { prompt: "User ordered gift items. Suggest Gifts & Occasions.", cat: "Gifting" },
+  night:   { prompt: "User places late-night orders 9pm-midnight. Suggest Premium Snacks.", cat: "Premium Snacks" },
+  grocery: { prompt: "User buys groceries weekly. Suggest Personal Care as next category.", cat: "Personal Care" }
 };
 
-let sel = null, shield = false, ai = null;
+let sel = null, shieldUsed = false, ai = null;
 
 function pick(el, sig) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
@@ -398,45 +393,41 @@ function pick(el, sig) {
 
 function placeOrder() {
   if (!sel) { showErr('Please select your recent order pattern to see Discovery Shield.'); return; }
-  const key = document.getElementById('apikey').value.trim();
-  if (!key) { showErr('Enter your free OpenRouter API key to activate the AI demo.'); return; }
-
   document.getElementById('demo-panel').style.display = 'none';
   document.getElementById('bill').style.display = 'none';
-  document.getElementById('payment-row').style.display = 'none';
-  document.getElementById('cta-bar').style.display = 'none';
+  document.getElementById('pay-row').style.display = 'none';
+  document.getElementById('cta').style.display = 'none';
   document.getElementById('loading').style.display = 'block';
-
-  callAI(key);
+  callAI();
 }
 
-async function callAI(key) {
+async function callAI() {
   const ctx = CTX[sel];
   const prompt = `You are an AI inside Blinkit quick commerce app India.
 
 ${ctx.prompt}
 
-Suggest ONE relevant adjacent category and 3 real products available in India with realistic INR prices.
+Suggest ONE relevant new product category and 3 real products available in India.
 
-Respond EXACTLY in this format, no extra text:
-HEADING: [max 9 words, natural and warm]
-REASON: [2 sentences, personal and helpful tone, explain why this fits them right now]
-P1_NAME: [real product name sold in India]
+Respond EXACTLY in this format only, no extra text:
+HEADING: [max 9 words, warm and natural]
+REASON: [2 sentences, personal tone, why this fits them right now]
+P1_NAME: [real Indian product name]
 P1_EMOJI: [one emoji]
-P1_PRICE: ₹[number]
+P1_PRICE: ₹[realistic price]
 P2_NAME: [real product name]
 P2_EMOJI: [one emoji]
-P2_PRICE: ₹[number]
+P2_PRICE: ₹[price]
 P3_NAME: [real product name]
 P3_EMOJI: [one emoji]
-P3_PRICE: ₹[number]`;
+P3_PRICE: ₹[price]`;
 
   try {
     const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`,
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
         'HTTP-Referer': location.href,
         'X-Title': 'Blinkit Discovery Shield'
       },
@@ -448,66 +439,55 @@ P3_PRICE: ₹[number]`;
     });
 
     if (!r.ok) {
-      const e = await r.json().catch(() => ({}));
+      const e = await r.json().catch(()=>({}));
       throw new Error(e?.error?.message || `HTTP ${r.status}`);
     }
 
     const d = await r.json();
     const t = d.choices[0].message.content;
-
-    const g = k => { const m = t.match(new RegExp(k + ':\\s*(.+?)(?=\\n[A-Z_]|$)', 's')); return m ? m[1].trim() : ''; };
+    const g = k => { const m = t.match(new RegExp(k+':\\s*(.+?)(?=\\n[A-Z_]|$)','s')); return m?m[1].trim():''; };
 
     ai = {
-      cat: CTX[sel].cat,
-      heading: g('HEADING') || `Try ${CTX[sel].cat} — Perfect for Right Now`,
-      reason: g('REASON') || 'Based on your recent orders, this category fits your life right now.',
+      cat: ctx.cat,
+      heading: g('HEADING') || `Try ${ctx.cat} — Right for You Now`,
+      reason: g('REASON') || 'Based on your recent orders, this category is a great fit for you right now.',
       products: [
-        { name: g('P1_NAME'), emoji: g('P1_EMOJI') || '📦', price: g('P1_PRICE') || '₹199' },
-        { name: g('P2_NAME'), emoji: g('P2_EMOJI') || '📦', price: g('P2_PRICE') || '₹299' },
-        { name: g('P3_NAME'), emoji: g('P3_EMOJI') || '📦', price: g('P3_PRICE') || '₹399' }
+        { name:g('P1_NAME'), emoji:g('P1_EMOJI')||'📦', price:g('P1_PRICE')||'₹199' },
+        { name:g('P2_NAME'), emoji:g('P2_EMOJI')||'📦', price:g('P2_PRICE')||'₹299' },
+        { name:g('P3_NAME'), emoji:g('P3_EMOJI')||'📦', price:g('P3_PRICE')||'₹399' }
       ]
     };
 
-    showConfirmation();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('nudge-heading').textContent = ai.heading;
+    document.getElementById('nudge-reason').textContent = ai.reason;
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('confirm-banner').style.display = 'block';
+    document.getElementById('shield-nudge').style.display = 'block';
+    document.getElementById('success-screen').scrollIntoView({behavior:'smooth'});
 
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('demo-panel').style.display = 'block';
     document.getElementById('bill').style.display = 'block';
-    document.getElementById('payment-row').style.display = 'flex';
-    document.getElementById('cta-bar').style.display = 'block';
-    showErr('Error: ' + e.message + '. Check your API key and try again.');
+    document.getElementById('pay-row').style.display = 'flex';
+    document.getElementById('cta').style.display = 'block';
+    showErr('Error: ' + e.message);
   }
 }
 
-function showConfirmation() {
-  document.getElementById('loading').style.display = 'none';
-  const sc = document.getElementById('success-screen');
-  sc.style.display = 'block';
-  document.getElementById('confirm-banner').style.display = 'block';
-
-  document.getElementById('nudge-heading').textContent = ai.heading;
-  document.getElementById('nudge-reason').textContent = ai.reason;
-  document.getElementById('shield-nudge').style.display = 'block';
-  document.getElementById('phase-note').style.display = 'block';
-
-  sc.scrollIntoView({ behavior: 'smooth' });
-}
-
 function showProducts() {
-  shield = true;
+  shieldUsed = true;
   document.getElementById('shield-nudge').style.display = 'none';
-  document.getElementById('phase-note').style.display = 'none';
-  document.getElementById('prod-hdr').textContent = `🛡️ ${ai.cat.toUpperCase()} — FIRST PURCHASE PROTECTED`;
-
+  document.getElementById('prod-hdr').textContent = `🛡️ ${ai.cat.toUpperCase()} — 2HR RETURN GUARANTEED`;
   let html = '';
   ai.products.forEach(p => {
-    if (!p.name) return;
+    if(!p.name) return;
     html += `<div class="prod-item">
       <div class="prod-thumb">${p.emoji}</div>
       <div class="prod-body">
         <div class="prod-name">${p.name}</div>
-        <div class="shield-micro">🛡️ Shield Protected</div>
+        <div class="shield-micro">🛡️ 2-hr return · Shield Protected</div>
       </div>
       <div class="prod-right">
         <div class="prod-price">${p.price}</div>
@@ -515,38 +495,35 @@ function showProducts() {
       </div>
     </div>`;
   });
-
   document.getElementById('prod-list').innerHTML = html;
   document.getElementById('products-area').style.display = 'block';
-  document.getElementById('products-area').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('products-area').scrollIntoView({behavior:'smooth'});
 }
 
 function skipShield() {
   document.getElementById('shield-nudge').style.display = 'none';
-  document.getElementById('phase-note').style.display = 'none';
-  showFinalNoShield();
+  document.getElementById('final-success').style.display = 'block';
 }
 
 function showFinal() {
   document.getElementById('products-area').style.display = 'none';
-  document.getElementById('shield-confirm-text').textContent =
-    `Your first order in ${ai ? ai.cat : 'this new category'} is fully protected. If anything is wrong, return within 24 hours — no questions asked. No forms. No hassle.`;
   document.getElementById('final-success').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function showFinalNoShield() {
-  document.getElementById('shield-confirm-text').textContent = 'Your groceries are on the way. Discovery Shield is available next time you want to explore a new category.';
-  document.getElementById('final-success').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function showErr(msg) {
   const e = document.getElementById('err');
   e.textContent = msg;
   e.style.display = 'block';
-  setTimeout(() => e.style.display = 'none', 7000);
+  setTimeout(()=>e.style.display='none', 7000);
 }
 </script>
+
+<!-- LOADING (placed after script so it works) -->
+<div class="loading" id="loading">
+  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="load-text">Placing order · AI detecting your life signal…</div>
+</div>
+
 </body>
 </html>
