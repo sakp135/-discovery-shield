@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Blinkit · Discovery Shield (MVP demo)</title>
+<style>
+:root{
+  --yellow:#F8CB46; --yellow-d:#EFBE28;
+  --green:#0C831F; --green-d:#0a6b19; --green-soft:#E8F5EA;
+  --ink:#0F1419; --ink-2:#3A4550; --muted:#7A8794;
+  --line:#ECEEF1; --bg:#F5F6F8; --card:#FFFFFF;
+  --navy:#0C1A33; --navy-2:#16294B; --cyan:#6FA8FF; --gold:#F5C451;
+  --red:#D33B2C; --red-soft:#FDECEA; --amber:#B45309; --amber-soft:#FEF3C7;
+  --r:14px;
+  --f: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--f); color:var(--ink); background:#0B1220;
+  background-image:radial-gradient(1000px 600px at 50% -10%, #1B2E52 0%, #0B1220 60%);
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;
+}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+
+/* ---------- stage ---------- */
+.stage{display:flex; gap:40px; align-items:center; justify-content:center; flex-wrap:wrap}
+.pitch{max-width:330px; color:#DCE6F5}
+.pitch .eyebrow{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:700}
+.pitch h1{font-size:30px; line-height:1.15; margin:10px 0 12px; letter-spacing:-.02em; color:#fff}
+.pitch p{font-size:14px; line-height:1.6; color:#9FB0C9; margin:0 0 18px}
+.pitch ol{margin:0; padding-left:18px; font-size:13px; line-height:1.9; color:#B9C7DC}
+.pitch code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12px}
+@media(max-width:900px){ .pitch{display:none} body{padding:0} }
+
+/* ---------- phone ---------- */
+.phone{
+  width:min(420px, 100vw); height:min(880px, 100vh);
+  background:var(--bg); border-radius:34px; overflow:hidden; position:relative;
+  box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 10px #05070C, 0 0 0 11px #2A3345;
+  display:flex; flex-direction:column;
+}
+@media(max-width:900px){ .phone{border-radius:0; box-shadow:none; height:100vh; height:100dvh} }
+#view{flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding-bottom:12px}
+#view::-webkit-scrollbar{width:0}
+
+/* ---------- generic ---------- */
+.hd{background:var(--yellow); padding:14px 16px 12px}
+.hd-row{display:flex; align-items:center; justify-content:space-between}
+.brand{font-size:21px; font-weight:800; letter-spacing:-.04em; color:#1C1C1C}
+.brand span{color:var(--green)}
+.eta{font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:#5A4A00}
+.addr{font-size:13px; font-weight:600; margin-top:2px; color:#2B2B2B}
+.addr small{display:block; font-weight:400; color:#6B5E22; font-size:11px}
+.search{margin-top:12px; background:#fff; border-radius:11px; padding:11px 13px; display:flex; gap:9px; align-items:center; border:1px solid rgba(0,0,0,.06)}
+.search input{border:0; outline:0; flex:1; font-size:14px; font-family:inherit; background:transparent}
+
+.topbar{background:#fff; padding:14px 16px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5}
+.topbar h2{margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em}
+.topbar small{display:block; font-weight:500; color:var(--muted); font-size:11.5px; letter-spacing:0}
+.back{width:32px; height:32px; border-radius:9px; border:1px solid var(--line); background:#fff; font-size:16px; cursor:pointer; display:grid; place-items:center; color:var(--ink)}
+
+.sec{padding:16px}
+.sec-t{font-size:15px; font-weight:750; letter-spacing:-.01em; margin:0 0 11px; display:flex; justify-content:space-between; align-items:baseline}
+.sec-t a{font-size:12px; font-weight:700; color:var(--green); text-decoration:none; cursor:pointer}
+
+.cats{display:grid; grid-template-columns:repeat(3,1fr); gap:9px}
+.cat{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:13px 6px; text-align:center; cursor:pointer; transition:.15s}
+.cat:active{transform:scale(.96)}
+.cat .ic{font-size:26px; line-height:1}
+.cat .nm{font-size:11px; font-weight:600; margin-top:7px; color:var(--ink-2); line-height:1.25}
+
+.grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.p{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:10px; display:flex; flex-direction:column}
+.p .img{height:88px; display:grid; place-items:center; font-size:44px; background:var(--bg); border-radius:10px; position:relative}
+.p .off{position:absolute; top:5px; left:5px; background:#256FEF; color:#fff; font-size:9px; font-weight:800; padding:2px 5px; border-radius:5px}
+.p .nm{font-size:12.5px; font-weight:600; line-height:1.3; margin:9px 0 3px; min-height:33px}
+.p .un{font-size:11px; color:var(--muted)}
+.p .row{display:flex; align-items:center; justify-content:space-between; margin-top:9px; gap:6px}
+.p .pr{font-size:13px; font-weight:750}
+.p .pr s{font-weight:400; color:var(--muted); font-size:11px; margin-left:3px}
+.add{border:1px solid var(--green); color:var(--green); background:var(--green-soft); font-weight:800; font-size:12px; padding:6px 14px; border-radius:8px; cursor:pointer}
+.add:active{transform:scale(.94)}
+.step{display:flex; align-items:center; background:var(--green); border-radius:8px; overflow:hidden}
+.step button{background:none; border:0; color:#fff; font-size:15px; font-weight:700; width:24px; height:29px; cursor:pointer}
+.step span{color:#fff; font-size:12px; font-weight:800; min-width:14px; text-align:center}
+
+/* shield visual language */
+.shield-card{
+  background:linear-gradient(150deg, var(--navy) 0%, var(--navy-2) 100%);
+  border-radius:16px; padding:15px; color:#fff; position:relative; overflow:hidden;
+}
+.shield-card::after{
+  content:""; position:absolute; inset:0;
+  background-image:linear-gradient(rgba(111,168,255,.07) 1px, transparent 1px),linear-gradient(90deg, rgba(111,168,255,.07) 1px, transparent 1px);
+  background-size:22px 22px; pointer-events:none;
+}
+.shield-card h3{margin:0; font-size:14.5px; font-weight:750; letter-spacing:-.01em; display:flex; align-items:center; gap:7px}
+.shield-card p{margin:6px 0 0; font-size:12px; line-height:1.55; color:#A9BEDE}
+.badge-sh{display:inline-flex; align-items:center; gap:5px; background:rgba(111,168,255,.16); border:1px solid rgba(111,168,255,.35); color:#BBD4FF; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 8px; border-radius:20px}
+.sv{width:15px; height:15px; flex:none}
+
+.card{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:14px}
+.card + .card{margin-top:10px}
+.row{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:5px 0}
+.row .k{color:var(--muted)}
+.row.total{border-top:1px dashed var(--line); margin-top:6px; padding-top:10px; font-weight:800; font-size:14px}
+.muted{color:var(--muted); font-size:12px; line-height:1.55}
+
+.btn{display:block; width:100%; border:0; background:var(--green); color:#fff; font-size:14.5px; font-weight:750; padding:14px; border-radius:12px; cursor:pointer; text-align:center}
+.btn:active{background:var(--green-d)}
+.btn[disabled]{background:#C9CFD6; cursor:not-allowed}
+.btn.ghost{background:#fff; color:var(--ink); border:1px solid var(--line); font-weight:650}
+.btn.navy{background:var(--navy)}
+.btn.danger{background:#fff; color:var(--red); border:1px solid #F3C7C2}
+
+.bar{position:sticky; bottom:0; background:#fff; border-top:1px solid var(--line); padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+
+/* nav */
+nav{display:flex; background:#fff; border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1; background:none; border:0; padding:9px 0 10px; cursor:pointer; color:var(--muted); font-size:10px; font-weight:650; display:flex; flex-direction:column; align-items:center; gap:3px}
+nav button .ic{font-size:17px; line-height:1}
+nav button.on{color:var(--green)}
+nav .dot{position:absolute; transform:translate(14px,-4px); background:var(--red); color:#fff; font-size:9px; font-weight:800; border-radius:9px; padding:0 4px}
+
+/* cart bar */
+.cartbar{position:absolute; left:12px; right:12px; bottom:70px; background:var(--green); color:#fff; border-radius:13px; padding:11px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; box-shadow:0 10px 26px rgba(12,131,31,.35); z-index:6}
+.cartbar b{font-size:13.5px} .cartbar small{display:block; font-size:11px; opacity:.85}
+.cartbar .go{font-size:13px; font-weight:800}
+
+/* timeline */
+.tl{position:relative; padding-left:26px}
+.tl li{list-style:none; padding:0 0 20px; position:relative}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:""; position:absolute; left:-20px; top:3px; width:11px; height:11px; border-radius:50%; background:#fff; border:2px solid #D3D8DE}
+.tl li::after{content:""; position:absolute; left:-15.5px; top:16px; bottom:0; width:2px; background:#E6E9ED}
+.tl li:last-child::after{display:none}
+.tl li.done::before{background:var(--green); border-color:var(--green)}
+.tl li.done::after{background:var(--green)}
+.tl li.now::before{background:var(--green); border-color:var(--green); box-shadow:0 0 0 4px rgba(12,131,31,.18)}
+.tl .t{font-size:13px; font-weight:650}
+.tl .s{font-size:11.5px; color:var(--muted); margin-top:2px}
+
+/* seal */
+.seal{display:flex; gap:13px; align-items:center; background:rgba(255,255,255,.05); border:1px solid rgba(111,168,255,.2); border-radius:12px; padding:11px; position:relative; z-index:1}
+.seal canvas{border-radius:7px; background:#fff; padding:5px; flex:none}
+.seal .id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; letter-spacing:.02em; color:#fff; font-weight:600}
+.seal .lb{font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:#7E97BE; font-weight:700}
+.seal .st{font-size:11px; margin-top:6px; font-weight:700; color:#7BE3A0}
+.seal .st.broken{color:#FF8A80}
+
+/* reasons */
+.opt{display:flex; gap:12px; align-items:flex-start; background:#fff; border:1px solid var(--line); border-radius:12px; padding:13px; cursor:pointer; margin-bottom:9px}
+.opt.sel{border-color:var(--navy); box-shadow:0 0 0 2px rgba(12,26,51,.1)}
+.opt .ic{font-size:19px; line-height:1.2}
+.opt .t{font-size:13.5px; font-weight:650}
+.opt .d{font-size:11.5px; color:var(--muted); margin-top:2px; line-height:1.45}
+
+/* camera */
+.cam{background:var(--navy); border-radius:16px; aspect-ratio:1/1; display:grid; place-items:center; position:relative; overflow:hidden}
+.cam .hint{color:#8FA8CC; font-size:12px; text-align:center; padding:0 30px; line-height:1.6}
+.cam img{width:100%; height:100%; object-fit:cover}
+.reticle{position:absolute; inset:32px; border-radius:12px}
+.reticle i{position:absolute; width:22px; height:22px; border:2px solid var(--cyan); opacity:.8}
+.reticle i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+.reticle i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+.reticle i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 6px}
+.reticle i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 6px 0}
+.scan{position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--cyan),transparent); box-shadow:0 0 16px 3px rgba(111,168,255,.6); animation:sc 1.5s linear infinite}
+@keyframes sc{0%{top:4%}100%{top:96%}}
+@media(prefers-reduced-motion:reduce){.scan{animation:none; top:50%}}
+
+/* verify checks */
+.chk{display:flex; gap:11px; align-items:flex-start; padding:11px 0; border-bottom:1px solid rgba(255,255,255,.07)}
+.chk:last-child{border:0}
+.chk .st{width:19px; height:19px; border-radius:50%; flex:none; display:grid; place-items:center; font-size:11px; font-weight:800; margin-top:1px}
+.chk .st.wait{border:2px solid rgba(255,255,255,.18)}
+.chk .st.run{border:2px solid var(--cyan); border-top-color:transparent; animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.chk .st.ok{background:#1E9E5A; color:#fff}
+.chk .st.no{background:var(--red); color:#fff}
+.chk .tt{font-size:12.5px; font-weight:600; color:#fff}
+.chk .dd{font-size:11px; color:#8FA8CC; margin-top:2px; line-height:1.45}
+.chk.pend .tt{color:#6C819F}
+
+.stat{text-align:center; padding:26px 16px 6px}
+.stat .ring{width:74px; height:74px; margin:0 auto 14px; border-radius:50%; display:grid; place-items:center; font-size:32px}
+.stat h2{margin:0 0 6px; font-size:19px; letter-spacing:-.02em}
+.stat p{margin:0; font-size:13px; color:var(--muted); line-height:1.6}
+
+.pill{display:inline-block; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:3px 8px; border-radius:6px}
+.pill.g{background:var(--green-soft); color:var(--green)}
+.pill.a{background:var(--amber-soft); color:var(--amber)}
+.pill.r{background:var(--red-soft); color:var(--red)}
+.pill.n{background:#E9EEF7; color:var(--navy-2)}
+
+.quota{display:flex; gap:7px; margin-top:11px}
+.quota i{flex:1; height:6px; border-radius:4px; background:rgba(255,255,255,.15)}
+.quota i.used{background:var(--gold)}
+
+.oi{display:flex; gap:11px; align-items:center; padding:9px 0}
+.oi .im{width:42px; height:42px; border-radius:9px; background:var(--bg); display:grid; place-items:center; font-size:22px; flex:none}
+.oi .nm{font-size:13px; font-weight:600}
+.oi .un{font-size:11px; color:var(--muted)}
+.oi .pr{margin-left:auto; font-size:12.5px; font-weight:700}
+
+.note{background:#F1F5FB; border-left:3px solid var(--navy-2); border-radius:0 9px 9px 0; padding:10px 12px; font-size:11.5px; line-height:1.55; color:var(--ink-2)}
+.note.warn{background:var(--amber-soft); border-color:var(--amber); color:#78350F}
+.note.bad{background:var(--red-soft); border-color:var(--red); color:#7F1D1D}
+
+.toggle{width:44px; height:26px; border-radius:20px; background:#D2D7DE; position:relative; transition:.18s; flex:none; cursor:pointer; border:0}
+.toggle::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.18s; box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle.on{background:var(--cyan)}
+.toggle.on::after{transform:translateX(18px)}
+
+.empty{text-align:center; padding:56px 30px; color:var(--muted)}
+.empty .e{font-size:40px}
+.empty p{font-size:13px; line-height:1.6; margin:12px 0 18px}
+
+/* demo panel */
+.fab{position:absolute; right:12px; top:calc(50% - 20px); width:38px; height:38px; border-radius:50%; background:var(--navy); color:#fff; border:1px solid rgba(255,255,255,.18); font-size:15px; cursor:pointer; z-index:20; box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.sheet{position:absolute; inset:0; background:rgba(6,12,24,.55); z-index:30; display:none; align-items:flex-end}
+.sheet.open{display:flex}
+.sheet .inner{background:var(--navy); width:100%; border-radius:20px 20px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); color:#fff; max-height:88%; overflow-y:auto}
+.sheet h4{margin:0 0 3px; font-size:14.5px}
+.sheet .sub{font-size:11.5px; color:#8FA8CC; margin-bottom:14px; line-height:1.5}
+.sw{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid rgba(255,255,255,.09)}
+.sw .tx{flex:1}
+.sw .t{font-size:12.5px; font-weight:600}
+.sw .d{font-size:11px; color:#8FA8CC; margin-top:2px; line-height:1.4}
+.segs{display:flex; gap:6px}
+.segs button{background:rgba(255,255,255,.08); color:#B9C7DC; border:1px solid rgba(255,255,255,.12); border-radius:8px; font-size:11px; font-weight:700; padding:6px 11px; cursor:pointer}
+.segs button.on{background:var(--cyan); color:#08152B; border-color:var(--cyan)}
+
+.fade{animation:fi .22s ease-out}
+@keyframes fi{from{opacity:0; transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.fade{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="pitch">
+    <div class="eyebrow">MVP Prototype</div>
+    <h1>Discovery Shield</h1>
+    <p>A quick-commerce return that is <b style="color:#fff">easy but verified</b> — not "no questions asked". Opt in before you order, get a tamper seal, return in two taps and one photo.</p>
+    <ol>
+      <li>Add items, turn on Shield in the cart</li>
+      <li>Order → sealed at dark store → delivered</li>
+      <li>Open the order → Return within 2 hours</li>
+      <li>Reason → one photo → AI verdict in seconds</li>
+      <li>Agent collects → seal scan → refund</li>
+    </ol>
+    <p style="margin-top:18px">Use the <code>⚙</code> button on the phone to force a failed photo check, a broken seal, or an exhausted quarterly quota.</p>
+  </div>
+
+  <div class="phone">
+    <div id="view"></div>
+    <div id="cartbar"></div>
+    <nav id="nav"></nav>
+    <button class="fab" data-act="demo" aria-label="Demo controls">⚙</button>
+    <div class="sheet" id="sheet"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================== DATA ============================== */
+const CATS = [
+  {id:'veg',   name:'Fruits & Veg', ic:'🥬'},
+  {id:'dairy', name:'Dairy & Eggs', ic:'🥛'},
+  {id:'snack', name:'Snacks',       ic:'🍿'},
+  {id:'drink', name:'Beverages',    ic:'🥤'},
+  {id:'care',  name:'Personal Care',ic:'🧴'},
+  {id:'home',  name:'Household',    ic:'🧻'}
+];
+
+const PRODUCTS = [
+  {id:'p1', c:'veg',   n:'Banana Robusta',        u:'6 pcs',    p:52,  m:60,  ic:'🍌'},
+  {id:'p2', c:'veg',   n:'Tomato Hybrid',         u:'500 g',    p:34,  m:40,  ic:'🍅'},
+  {id:'p3', c:'veg',   n:'Baby Spinach',          u:'250 g',    p:45,  m:45,  ic:'🥬'},
+  {id:'p4', c:'dairy', n:'Amul Gold Milk',        u:'500 ml',   p:35,  m:35,  ic:'🥛'},
+  {id:'p5', c:'dairy', n:'Farm Eggs',             u:'6 pcs',    p:72,  m:84,  ic:'🥚'},
+  {id:'p6', c:'dairy', n:'Amul Butter',           u:'100 g',    p:58,  m:62,  ic:'🧈'},
+  {id:'p7', c:'snack', n:'Lay\'s Classic Salted', u:'52 g',     p:20,  m:20,  ic:'🥔'},
+  {id:'p8', c:'snack', n:'Dark Chocolate 70%',    u:'80 g',     p:180, m:220, ic:'🍫'},
+  {id:'p9', c:'snack', n:'Roasted Almonds',       u:'200 g',    p:245, m:299, ic:'🥜'},
+  {id:'p10',c:'drink', n:'Cold Brew Coffee',      u:'200 ml',   p:149, m:180, ic:'☕'},
+  {id:'p11',c:'drink', n:'Orange Juice',          u:'1 L',      p:135, m:150, ic:'🧃'},
+  {id:'p12',c:'drink', n:'Sparkling Water',       u:'750 ml',   p:60,  m:70,  ic:'🥤'},
+  {id:'p13',c:'care',  n:'Face Serum Vit-C',      u:'30 ml',    p:649, m:899, ic:'🧴'},
+  {id:'p14',c:'care',  n:'Herbal Shampoo',        u:'340 ml',   p:399, m:475, ic:'🧼'},
+  {id:'p15',c:'home',  n:'Kitchen Towel Roll',    u:'2 rolls',  p:99,  m:120, ic:'🧻'},
+  {id:'p16',c:'home',  n:'Dish Wash Gel',         u:'750 ml',   p:189, m:225, ic:'🧽'}
+];
+
+const REASONS = [
+  {id:'wrong',   ic:'📦', t:'Wrong item delivered',  d:'You received something other than what you ordered.',
+   need:'Photo must show the item you received, with its label visible.'},
+  {id:'damaged', ic:'💥', t:'Damaged or leaking',    d:'Packaging is torn, crushed, dented or leaking.',
+   need:'Photo must show the damage clearly.'},
+  {id:'quality', ic:'🥀', t:'Quality issue',         d:'Spoiled, stale, or past its usable life.',
+   need:'Photo must show the product and its date label.'},
+  {id:'mind',    ic:'↩️', t:'Changed my mind',       d:'Item is unopened and the seal is intact.',
+   need:'Photo must show the Shield seal unbroken.'}
+];
+
+const SHIELD_FEE = 9;
+const QUOTA = 3;
+const QUARTER_END = '30 Sep 2026';
+
+/* ============================== STATE ============================== */
+const S = {
+  screen:'home',
+  cart:{},
+  orders:[],
+  q:'',
+  cat:null,
+  activeOrder:null,
+  draft:null,          // {orderId, reason, photo}
+  shieldUsed:0,
+  demo:{ photoMatch:true, sealIntact:true, fast:true }
+};
+
+const SHIELD_SVG = '<svg class="sv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5.5v6c0 5 3.4 9.4 8 10.5 4.6-1.1 8-5.5 8-10.5v-6L12 2Z"/><path d="m9 12 2 2 4-4"/></svg>';
+
+/* ============================== HELPERS ============================== */
+const $ = s => document.querySelector(s);
+const money = n => '₹' + n.toLocaleString('en-IN');
+const prod = id => PRODUCTS.find(p => p.id === id);
+const cartItems = () => Object.keys(S.cart).map(id => ({...prod(id), q:S.cart[id]}));
+const cartCount = () => Object.values(S.cart).reduce((a,b)=>a+b,0);
+const itemTotal = () => cartItems().reduce((a,i)=>a+i.p*i.q,0);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function bill(shield){
+  const it = itemTotal();
+  const del = it >= 199 ? 0 : 25;
+  const handling = 4;
+  return { it, del, handling, shield: shield ? SHIELD_FEE : 0, total: it + del + handling + (shield ? SHIELD_FEE : 0) };
+}
+
+function sealId(){
+  const r = () => Math.random().toString(36).slice(2,6).toUpperCase();
+  return 'BLK-' + r() + '-' + r();
+}
+
+function fmtTime(ms){
+  if (ms <= 0) return '00:00:00';
+  const s = Math.floor(ms/1000);
+  return [Math.floor(s/3600), Math.floor(s%3600/60), s%60].map(v=>String(v).padStart(2,'0')).join(':');
+}
+
+function clock(d){
+  return new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* deterministic QR-looking matrix from the seal id */
+function drawSeal(cv, text){
+  const n = 21, px = cv.width / n, ctx = cv.getContext('2d');
+  let h = 2166136261;
+  for (let i=0;i<text.length;i++){ h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h<<13; h ^= h>>>17; h ^= h<<5; return (h>>>0)/4294967296; };
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle = '#0C1A33';
+  for (let y=0;y<n;y++) for (let x=0;x<n;x++) if (rnd() > 0.52) ctx.fillRect(x*px, y*px, px, px);
+  const finder = (fx, fy) => {
+    ctx.fillStyle='#fff'; ctx.fillRect(fx*px, fy*px, 8*px, 8*px);
+    ctx.fillStyle='#0C1A33'; ctx.fillRect(fx*px, fy*px, 7*px, 7*px);
+    ctx.fillStyle='#fff'; ctx.fillRect((fx+1)*px, (fy+1)*px, 5*px, 5*px);
+    ctx.fillStyle='#0C1A33'; ctx.fillRect((fx+2)*px, (fy+2)*px, 3*px, 3*px);
+  };
+  finder(0,0); finder(14,0); finder(0,14);
+}
+
+/* a stand-in "camera" photo so the demo works on a laptop */
+function samplePhoto(order, ok){
+  const c = document.createElement('canvas'); c.width = c.height = 420;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0,0,420,420);
+  g.addColorStop(0,'#E7EBF2'); g.addColorStop(1,'#C8D2E0');
+  x.fillStyle = g; x.fillRect(0,0,420,420);
+  x.fillStyle = '#fff'; x.fillRect(70,90,280,250);
+  x.strokeStyle = '#B9C4D4'; x.lineWidth = 3; x.strokeRect(70,90,280,250);
+  x.font = '110px serif'; x.textAlign = 'center';
+  x.fillText(order.items[0].ic, 210, 235);
+  x.fillStyle = ok ? '#0C831F' : '#D33B2C';
+  x.fillRect(70, 300, 280, 40);
+  x.fillStyle = '#fff'; x.font = 'bold 15px sans-serif';
+  x.fillText(ok ? 'SHIELD SEAL · INTACT' : 'SHIELD SEAL · TAMPERED', 210, 327);
+  x.fillStyle = '#5B6879'; x.font = '13px sans-serif';
+  x.fillText(order.seal, 210, 372);
+  return c.toDataURL('image/png');
+}
+
+/* ============================== ORDER LIFECYCLE ============================== */
+const STAGES = ['Order placed','Packed & sealed','Out for delivery','Delivered'];
+
+function placeOrder(shield){
+  const b = bill(shield);
+  const o = {
+    id: 'BK' + Date.now().toString().slice(-8),
+    items: cartItems(),
+    bill: b,
+    shield,
+    seal: shield ? sealId() : null,
+    stage: 0,
+    placedAt: Date.now(),
+    deliveredAt: null,
+    ret: null
+  };
+  S.orders.unshift(o);
+  S.cart = {};
+  S.activeOrder = o.id;
+  S.screen = 'track';
+  render();
+  advance(o);
+}
+
+function advance(o){
+  const gap = S.demo.fast ? 1600 : 6000;
+  const t = setInterval(() => {
+    o.stage++;
+    if (o.stage >= 3){ o.stage = 3; o.deliveredAt = Date.now(); clearInterval(t); }
+    if (S.screen === 'track' && S.activeOrder === o.id) render();
+  }, gap);
+}
+
+const order = id => S.orders.find(o => o.id === id);
+const windowLeft = o => o.deliveredAt ? (o.deliveredAt + 2*3600*1000) - Date.now() : null;
+const canReturn = o => o.shield && o.stage === 3 && windowLeft(o) > 0 && !o.ret && S.shieldUsed < QUOTA;
+
+/* ============================== SCREENS ============================== */
+function screenHome(){
+  const list = S.q
+    ? PRODUCTS.filter(p => p.n.toLowerCase().includes(S.q.toLowerCase()))
+    : PRODUCTS.slice(0, 8);
+  return `
+  <div class="hd">
+    <div class="hd-row">
+      <div>
+        <div class="eta">Delivery in 8 minutes</div>
+        <div class="addr">Home · Baner, Pune <small>Balewadi High Street, 411045</small></div>
+      </div>
+      <div class="brand">blink<span>it</span></div>
+    </div>
+    <div class="search">🔎<input id="q" placeholder="Search for atta, dal, coke and more" value="${esc(S.q)}"></div>
+  </div>
+
+  <div class="sec">
+    <div class="shield-card" data-act="go" data-s="shield" style="cursor:pointer">
+      <h3>${SHIELD_SVG} Discovery Shield</h3>
+      <p>Turn it on in the cart for ${money(SHIELD_FEE)}. Your order arrives with a tamper seal, and you can return it within 2 hours with one photo — verified in seconds.</p>
+      <div style="margin-top:11px" class="badge-sh">How it works →</div>
+    </div>
+  </div>
+
+  <div class="sec" style="padding-top:0">
+    <div class="sec-t">Shop by category</div>
+    <div class="cats">
+      ${CATS.map(c => `<div class="cat" data-act="cat" data-id="${c.id}"><div class="ic">${c.ic}</div><div class="nm">${c.name}</div></div>`).join('')}
+    </div>
+  </div>
+
+  <div class="sec" style="padding-top:0">
+    <div class="sec-t">${S.q ? `Results for "${esc(S.q)}"` : 'Bestsellers'}</div>
+    ${list.length ? `<div class="grid">${list.map(pCard).join('')}</div>`
+                  : `<div class="empty"><div class="e">🔍</div><p>Nothing matched that. Try "milk" or "coffee".</p></div>`}
+  </div>`;
+}
+
+function screenCat(){
+  const c = CATS.find(x => x.id === S.cat);
+  const list = PRODUCTS.filter(p => p.c === S.cat);
+  return `
+  ${topbar(c.ic + ' ' + c.name, list.length + ' items', 'home')}
+  <div class="sec"><div class="grid">${list.map(pCard).join('')}</div></div>`;
+}
+
+function pCard(p){
+  const q = S.cart[p.id] || 0;
+  const off = p.m > p.p ? Math.round((1 - p.p/p.m) * 100) + '% OFF' : '';
+  return `
+  <div class="p">
+    <div class="img">${off ? `<div class="off">${off}</div>` : ''}${p.ic}</div>
+    <div class="nm">${p.n}</div>
+    <div class="un">${p.u}</div>
+    <div class="row">
+      <div class="pr">${money(p.p)}${p.m > p.p ? `<s>${money(p.m)}</s>` : ''}</div>
+      ${q ? `<div class="step"><button data-act="dec" data-id="${p.id}">−</button><span>${q}</span><button data-act="inc" data-id="${p.id}">+</button></div>`
+          : `<button class="add" data-act="inc" data-id="${p.id}">ADD</button>`}
+    </div>
+  </div>`;
+}
+
+function screenCart(){
+  if (!cartCount()) return `${topbar('Your cart','','home')}
+    <div class="empty"><div class="e">🛒</div><p>Your cart is empty.<br>Add a few things to try the Shield flow.</p>
+    <button class="btn" data-act="go" data-s="home" style="max-width:200px;margin:0 auto">Start shopping</button></div>`;
+
+  const on = S.cartShield !== false;
+  const b = bill(on);
+  return `
+  ${topbar('Your cart', cartCount() + ' items · 8 min delivery', 'home')}
+  <div class="sec">
+    <div class="card">
+      ${cartItems().map(i => `
+        <div class="oi">
+          <div class="im">${i.ic}</div>
+          <div><div class="nm">${i.n}</div><div class="un">${i.u}</div></div>
+          <div style="margin-left:auto; text-align:right">
+            <div class="pr">${money(i.p * i.q)}</div>
+            <div class="step" style="margin-top:5px"><button data-act="dec" data-id="${i.id}">−</button><span>${i.q}</span><button data-act="inc" data-id="${i.id}">+</button></div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="shield-card" style="margin-top:12px">
+      <div style="display:flex; gap:12px; align-items:flex-start; position:relative; z-index:1">
+        <div style="flex:1">
+          <h3>${SHIELD_SVG} Add Discovery Shield · ${money(SHIELD_FEE)}</h3>
+          <p>Must be switched on <b style="color:#fff">before you order</b> — the dark store applies the tamper seal while packing. It can't be added later.</p>
+        </div>
+        <button class="toggle ${on ? 'on' : ''}" data-act="shieldToggle" aria-label="Discovery Shield"></button>
+      </div>
+      <div style="position:relative; z-index:1; margin-top:12px; display:grid; gap:7px; font-size:11.5px; color:#A9BEDE">
+        <div>✓ 2-hour return window from delivery</div>
+        <div>✓ One photo, AI-verified in seconds</div>
+        <div>✓ Agent collects on the next run, refund on seal check</div>
+        <div>✓ ${QUOTA - S.shieldUsed} of ${QUOTA} Shield returns left this quarter</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row"><span class="k">Item total</span><span>${money(b.it)}</span></div>
+      <div class="row"><span class="k">Delivery</span><span>${b.del ? money(b.del) : '<b style="color:var(--green)">FREE</b>'}</span></div>
+      <div class="row"><span class="k">Handling</span><span>${money(b.handling)}</span></div>
+      ${on ? `<div class="row"><span class="k">Discovery Shield</span><span>${money(SHIELD_FEE)}</span></div>` : ''}
+      <div class="row total"><span>To pay</span><span>${money(b.total)}</span></div>
+    </div>
+    ${!on ? `<div class="note warn" style="margin-top:10px">Shield is off. This order ships without a tamper seal and can't use the 2-hour return.</div>` : ''}
+  </div>
+  <div class="bar"><button class="btn" data-act="place">Place order · ${money(b.total)}</button></div>`;
+}
+
+/* ============================== AI RECOMMENDATION ============================== */
+const OPENROUTER_KEY = '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';
+
+// Category mapping for discovery nudge
+const CAT_SIGNALS = {
+  veg:   { signal: "buying fresh vegetables and fruits regularly",    newCat: "Personal Care", newCatId: "care",  why: "Fresh eaters often care about skin and hair too." },
+  dairy: { signal: "ordering dairy and eggs regularly",               newCat: "Snacks",        newCatId: "snack", why: "Pair your breakfast staples with healthy snacks." },
+  snack: { signal: "buying snacks frequently",                        newCat: "Beverages",     newCatId: "drink", why: "Great snacks deserve great drinks." },
+  drink: { signal: "ordering beverages regularly",                    newCat: "Snacks",        newCatId: "snack", why: "Complete your snacking experience." },
+  care:  { signal: "buying personal care products",                   newCat: "Household",     newCatId: "home",  why: "Home care goes hand in hand with personal care." },
+  home:  { signal: "ordering household essentials",                   newCat: "Personal Care", newCatId: "care",  why: "Take care of your home and yourself." }
+};
+
+// AI recommendation state
+const AI = {
+  loading: false,
+  result: null,   // { heading, reason, products: [{name, emoji, price}] }
+  cartSnapshot: null,
+  error: null
+};
+
+async function fetchAIRecommendation(cartItemsList) {
+  if (!cartItemsList.length) return;
+
+  // Detect dominant category in cart
+  const catCounts = {};
+  cartItemsList.forEach(i => { catCounts[i.c] = (catCounts[i.c] || 0) + i.q; });
+  const topCat = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0][0];
+  const signal = CAT_SIGNALS[topCat] || CAT_SIGNALS.veg;
+  const cartNames = cartItemsList.map(i => i.n).join(", ");
+
+  const prompt = `You are an AI inside Blinkit quick commerce app in India.
+
+The user has these items in their cart: ${cartNames}
+They are ${signal.signal}.
+
+Suggest ONE product from the "${signal.newCat}" category that would complement their current cart perfectly.
+
+Respond in EXACTLY this format, no extra text:
+HEADING: [max 8 words, warm and natural]
+REASON: [1-2 sentences, personal and helpful, why this fits them right now]
+P1_NAME: [real Indian product name from ${signal.newCat} category]
+P1_EMOJI: [one emoji]
+P1_PRICE: ₹[realistic Indian price]
+P2_NAME: [another real product]
+P2_EMOJI: [one emoji]
+P2_PRICE: ₹[price]
+P3_NAME: [another real product]
+P3_EMOJI: [one emoji]
+P3_PRICE: ₹[price]`;
+
+  try {
+    AI.loading = true;
+    AI.error = null;
+    render();
+
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'HTTP-Referer': location.href,
+        'X-Title': 'Blinkit Discovery Shield'
+      },
+      body: JSON.stringify({
+        model: 'openrouter/free',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!r.ok) throw new Error('API error ' + r.status);
+    const d = await r.json();
+    const t = d.choices[0].message.content;
+    const g = k => { const m = t.match(new RegExp(k + ':\\s*(.+?)(?=\\n[A-Z_]|$)', 's')); return m ? m[1].trim() : ''; };
+
+    AI.result = {
+      newCat: signal.newCat,
+      newCatId: signal.newCatId,
+      heading: g('HEADING') || `Try ${signal.newCat} — Perfect Right Now`,
+      reason: g('REASON') || signal.why,
+      products: [
+        { name: g('P1_NAME'), emoji: g('P1_EMOJI') || '📦', price: g('P1_PRICE') || '₹199' },
+        { name: g('P2_NAME'), emoji: g('P2_EMOJI') || '📦', price: g('P2_PRICE') || '₹299' },
+        { name: g('P3_NAME'), emoji: g('P3_EMOJI') || '📦', price: g('P3_PRICE') || '₹399' }
+      ]
+    };
+    AI.cartSnapshot = cartNames;
+  } catch(e) {
+    AI.error = e.message;
+    AI.result = null;
+  } finally {
+    AI.loading = false;
+    render();
+  }
+}
+
+function aiRecommendationCard(orderItems) {
+  // Use passed order items (from confirmation) or fall back to cart
+  const items = orderItems || cartItems();
+  if (!items.length) return '';
+
+  // Trigger AI fetch if items changed
+  const snap = items.map(i=>i.n).join(',');
+  if (snap !== AI.cartSnapshot && !AI.loading) {
+    setTimeout(() => fetchAIRecommendation(items), 400);
+    AI.cartSnapshot = snap;
+  }
+
+  if (AI.loading) return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <h3>🛡️ Discovery Shield — Finding your match…</h3>
+        <div style="margin-top:10px;display:flex;gap:5px;align-items:center">
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .15s;opacity:.7"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .3s;opacity:.4"></div>
+          <span style="font-size:12px;color:#A9BEDE;margin-left:4px">AI is reading your cart…</span>
+        </div>
+      </div>
+    </div>`;
+
+  if (!AI.result) return '';
+
+  const r = AI.result;
+  return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
+          ✨ AI-Detected for You
+        </div>
+        <h3 style="font-size:15px;margin-bottom:5px">🛡️ ${r.heading}</h3>
+        <p style="margin-bottom:12px">${r.reason}</p>
+
+        <div style="background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.18);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:#A9BEDE;line-height:1.6">
+          <b style="color:#fff;display:block;margin-bottom:3px">🛡️ Discovery Shield — 2-Hour Easy Return</b>
+          Try risk-free. Changed your mind? Return within <b style="color:#fff">2 hours of delivery</b> — one photo, AI verified, delivery partner collects on next run.
+        </div>
+
+        <div style="display:grid;gap:8px;margin-bottom:12px">
+          ${r.products.filter(p=>p.name).map(p=>`
+            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:24px">${p.emoji}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">🛡️ Shield Protected · 2-hr return</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:13px;font-weight:700;color:#F8CB46">${p.price}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+
+        <button class="btn" data-act="go" data-s="cat" data-cat="${r.newCatId}"
+          style="width:100%;background:var(--green);border-color:var(--green);font-size:13px;padding:11px">
+          Explore ${r.newCat} with Shield →
+        </button>
+      </div>
+    </div>`;
+}
+
+function screenTrack(){
+  const o = order(S.activeOrder);
+  const done = o.stage === 3;
+  return `
+  ${topbar(done ? 'Delivered' : 'Arriving in 8 minutes', 'Order ' + o.id, 'orders')}
+  <div class="sec">
+    ${o.shield ? `
+    <div class="shield-card">
+      <h3 style="position:relative;z-index:1">${SHIELD_SVG} Shield active on this order</h3>
+      <div class="seal" style="margin-top:12px">
+        <canvas width="112" height="112" data-seal="${o.seal}"></canvas>
+        <div>
+          <div class="lb">Tamper seal</div>
+          <div class="id">${o.seal}</div>
+          <div class="st">${o.stage >= 1 ? '● Applied at dark store · intact' : '○ Applying at dark store…'}</div>
+        </div>
+      </div>
+    </div>` : `<div class="note warn">No Shield on this order. The 2-hour verified return isn't available.</div>`}
+
+    <div class="card" style="margin-top:12px">
+      <ul class="tl" style="margin:0; padding:2px 0 0 26px">
+        ${STAGES.map((s,i) => `
+          <li class="${i < o.stage ? 'done' : i === o.stage ? 'now done' : ''}">
+            <div class="t">${s}</div>
+            <div class="s">${i <= o.stage ? stageNote(i, o) : 'Pending'}</div>
+          </li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      ${o.items.map(i => `<div class="oi"><div class="im">${i.ic}</div><div><div class="nm">${i.n}</div><div class="un">${i.u} · Qty ${i.q}</div></div><div class="pr">${money(i.p*i.q)}</div></div>`).join('')}
+      <div class="row total"><span>Paid</span><span>${money(o.bill.total)}</span></div>
+    </div>
+
+    ${done ? `<div style="margin-top:12px"><button class="btn ghost" data-act="open" data-id="${o.id}">View order & return options</button></div>` : ''}
+
+    ${o.stage === 0 ? aiRecommendationCard(o.items) : ''}
+  </div>`;
+}
+
+function stageNote(i, o){
+  if (i === 0) return 'Payment confirmed · ' + clock(o.placedAt);
+  if (i === 1) return o.shield ? 'Seal ' + o.seal + ' applied' : 'Packed at Baner dark store';
+  if (i === 2) return 'Rider Imran is 1.2 km away';
+  return 'Handed over at ' + clock(o.deliveredAt) + (o.shield ? ' · seal intact' : '');
+}
+
+function screenOrders(){
+  if (!S.orders.length) return `${topbar('Your orders','','home')}
+    <div class="empty"><div class="e">🧾</div><p>No orders yet.<br>Place one with Shield on to see the return flow.</p>
+    <button class="btn" data-act="go" data-s="home" style="max-width:200px;margin:0 auto">Start shopping</button></div>`;
+  return `
+  ${topbar('Your orders', S.orders.length + ' total', 'home')}
+  <div class="sec">
+    ${S.orders.map(o => `
+      <div class="card" style="margin-bottom:10px; cursor:pointer" data-act="open" data-id="${o.id}">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div>
+            <div style="font-size:13.5px; font-weight:700">${o.id}</div>
+            <div class="muted" style="margin-top:2px">${o.items.length} items · ${money(o.bill.total)} · ${clock(o.placedAt)}</div>
+          </div>
+          <div style="text-align:right">
+            ${o.shield ? `<span class="pill n">Shield</span>` : ''}
+            <div class="muted" style="margin-top:5px">${o.ret ? retLabel(o) : STAGES[o.stage]}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; margin-top:11px">${o.items.map(i=>`<div class="im" style="width:36px;height:36px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-size:18px">${i.ic}</div>`).join('')}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function retLabel(o){
+  return {verified:'Return approved', pickup:'Pickup scheduled', refunded:'Refunded',
+          rejected:'Return rejected', review:'Under human review'}[o.ret.status] || 'Return started';
+}
+
+function screenOrder(){
+  const o = order(S.activeOrder);
+  const left = windowLeft(o);
+  const quotaOut = S.shieldUsed >= QUOTA;
+  return `
+  ${topbar('Order ' + o.id, clock(o.placedAt) + ' · ' + money(o.bill.total), 'orders')}
+  <div class="sec">
+    <div class="card">
+      ${o.items.map(i => `<div class="oi"><div class="im">${i.ic}</div><div><div class="nm">${i.n}</div><div class="un">${i.u} · Qty ${i.q}</div></div><div class="pr">${money(i.p*i.q)}</div></div>`).join('')}
+    </div>
+
+    ${o.shield ? `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1">
+        <h3>${SHIELD_SVG} Discovery Shield</h3>
+        ${o.ret ? '' : `<span class="badge-sh">${left > 0 ? 'Window open' : 'Window closed'}</span>`}
+      </div>
+      <div class="seal" style="margin-top:12px">
+        <canvas width="112" height="112" data-seal="${o.seal}"></canvas>
+        <div>
+          <div class="lb">Tamper seal</div>
+          <div class="id">${o.seal}</div>
+          <div class="st ${o.ret && o.ret.status === 'rejected' && o.ret.why === 'seal' ? 'broken' : ''}">${o.ret && o.ret.status==='rejected' && o.ret.why==='seal' ? '● Broken at collection' : '● Intact'}</div>
+        </div>
+      </div>
+      ${!o.ret && o.stage === 3 && left > 0 ? `
+        <div style="position:relative;z-index:1;margin-top:13px;text-align:center">
+          <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7E97BE;font-weight:700">Return window closes in</div>
+          <div id="cd" style="font-family:ui-monospace,Menlo,monospace;font-size:27px;font-weight:700;margin-top:4px;letter-spacing:.02em">${fmtTime(left)}</div>
+        </div>` : ''}
+    </div>` : `<div class="note warn" style="margin-top:12px">Shield wasn't switched on for this order, so there's no tamper seal and no 2-hour return. Turn it on in the cart next time.</div>`}
+
+    ${o.ret ? returnStatusCard(o) : ''}
+
+    ${o.shield && o.stage === 3 && !o.ret ? (
+      left <= 0
+        ? `<div class="note" style="margin-top:12px">The 2-hour window has closed. Chat support can still look at this order.</div>`
+        : quotaOut
+          ? `<div class="note bad" style="margin-top:12px"><b>Shield return limit reached — ${QUOTA} of ${QUOTA} used this quarter.</b><br>Your quota resets on ${QUARTER_END}. This cap is what keeps the process free of abuse.</div>`
+          : `<div style="margin-top:12px"><button class="btn navy" data-act="retStart" data-id="${o.id}">Return an item</button>
+             <div class="muted" style="text-align:center;margin-top:9px">One photo. Verified in seconds.</div></div>`
+    ) : ''}
+  </div>`;
+}
+
+function returnStatusCard(o){
+  const r = o.ret;
+  if (r.status === 'refunded') return `
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">Refund complete</b><span class="pill g">Paid</span></div>
+      <div class="muted" style="margin-top:7px">${money(r.amount)} returned to your original payment method. Seal ${o.seal} verified intact at collection.</div>
+    </div>`;
+  if (r.status === 'rejected') return `
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">Return rejected</b><span class="pill r">Closed</span></div>
+      <div class="muted" style="margin-top:7px">${r.why === 'seal' ? 'The tamper seal was broken at collection, so the item counts as used. It has been left with you and no refund was issued.' : 'The photo did not support the reason selected.'}</div>
+    </div>`;
+  if (r.status === 'review') return `
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">Under human review</b><span class="pill a">6–12 hrs</span></div>
+      <div class="muted" style="margin-top:7px">Automated checks were inconclusive. A support agent will review your photo and update you.</div>
+    </div>`;
+  return `
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">Return approved</b><span class="pill g">Pickup due</span></div>
+      <div class="muted" style="margin-top:7px">Collection on the next delivery run in this area.</div>
+      <button class="btn ghost" style="margin-top:11px" data-act="go" data-s="ret_pickup">Track pickup</button>
+    </div>`;
+}
+
+/* ---------- return flow ---------- */
+function screenReason(){
+  const o = order(S.draft.orderId);
+  return `
+  ${topbar('Why are you returning this?','Step 1 of 3 · Order ' + o.id,'order')}
+  <div class="sec">
+    ${o.items.length > 1 ? `<div class="muted" style="margin-bottom:11px">Returning: <b style="color:var(--ink)">${o.items[0].n}</b> · ${o.items[0].u}</div>` : ''}
+    ${REASONS.map(r => `
+      <div class="opt ${S.draft.reason === r.id ? 'sel' : ''}" data-act="reason" data-id="${r.id}">
+        <div class="ic">${r.ic}</div>
+        <div><div class="t">${r.t}</div><div class="d">${r.d}</div></div>
+      </div>`).join('')}
+    <div class="note" style="margin-top:4px">Pick the closest reason. The photo you take next is checked against it, so an honest reason gets approved faster.</div>
+  </div>
+  <div class="bar"><button class="btn navy" data-act="toPhoto" ${S.draft.reason ? '' : 'disabled'}>Continue</button></div>`;
+}
+
+function screenPhoto(){
+  const r = REASONS.find(x => x.id === S.draft.reason);
+  const o = order(S.draft.orderId);
+  return `
+  ${topbar('Take one photo','Step 2 of 3 · ' + r.t,'ret_reason')}
+  <div class="sec">
+    <div class="cam">
+      ${S.draft.photo
+        ? `<img src="${S.draft.photo}" alt="Return photo">`
+        : `<div class="reticle"><i></i><i></i><i></i><i></i></div>
+           <div class="hint">Place the product and its Shield seal inside the frame</div>`}
+    </div>
+    <div class="note" style="margin-top:12px"><b>For "${r.t}":</b> ${r.need}</div>
+
+    <div style="margin-top:12px; display:grid; gap:9px">
+      <label class="btn navy" style="cursor:pointer">${S.draft.photo ? 'Retake photo' : 'Open camera'}
+        <input type="file" accept="image/*" capture="environment" id="shot" style="display:none">
+      </label>
+      <button class="btn ghost" data-act="sample">Use a sample photo (demo)</button>
+    </div>
+    <div class="muted" style="text-align:center; margin-top:9px">Photos are used only to verify this return.</div>
+  </div>
+  <div class="bar"><button class="btn navy" data-act="verify" ${S.draft.photo ? '' : 'disabled'}>Submit for verification</button></div>`;
+}
+
+const CHECKS = [
+  {t:'Detecting product in frame',      d:'Object detection on the uploaded image'},
+  {t:'Matching against order line',     d:'Comparing detection with the SKU you were billed for'},
+  {t:'Assessing condition vs reason',   d:'Checking that the image supports the reason you picked'},
+  {t:'Reading Shield seal',             d:'Locating seal in frame and reading its code'},
+  {t:'Scoring return history',          d:'Abuse pattern check across your recent returns'}
+];
+
+function screenVerify(){
+  const o = order(S.draft.orderId);
+  return `
+  ${topbar('Verifying','Step 3 of 3 · usually under 10 seconds','ret_photo')}
+  <div class="sec">
+    <div class="cam" style="aspect-ratio:4/3">
+      <img src="${S.draft.photo}" alt="Return photo" style="opacity:.65">
+      <div class="scan"></div>
+      <div class="reticle"><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1" id="checks">
+        ${CHECKS.map((c,i) => `
+          <div class="chk pend" data-i="${i}">
+            <div class="st wait"></div>
+            <div><div class="tt">${c.t}</div><div class="dd">${c.d}</div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="muted" style="text-align:center;margin-top:11px">Order ${o.id} · Seal ${o.seal}</div>
+  </div>`;
+}
+
+function runVerification(){
+  const nodes = [...document.querySelectorAll('.chk')];
+  const pass = S.demo.photoMatch;
+  const failAt = 2; // condition-vs-reason check is the one that fails
+  let i = 0;
+  const step = () => {
+    if (i > 0){
+      const prev = nodes[i-1];
+      const bad = !pass && (i-1) === failAt;
+      prev.querySelector('.st').className = 'st ' + (bad ? 'no' : 'ok');
+      prev.querySelector('.st').textContent = bad ? '!' : '✓';
+      prev.querySelector('.dd').textContent = bad
+        ? 'Image does not show what this reason claims'
+        : ['Product identified · 97% confidence',
+           'Matches billed line item · 99% confidence',
+           'Condition consistent with reason · 94% confidence',
+           'Seal read and matched to this order',
+           `${S.shieldUsed} of ${QUOTA} returns used · trust score 92/100`][i-1];
+      if (bad){ setTimeout(() => finishVerification(false), 900); return; }
+    }
+    if (i >= nodes.length){ setTimeout(() => finishVerification(true), 700); return; }
+    const cur = nodes[i];
+    cur.classList.remove('pend');
+    cur.querySelector('.st').className = 'st run';
+    i++;
+    setTimeout(step, S.demo.fast ? 750 : 1500);
+  };
+  setTimeout(step, 500);
+}
+
+function finishVerification(ok){
+  const o = order(S.draft.orderId);
+  if (ok){
+    S.shieldUsed++;
+    o.ret = { status:'verified', reason:S.draft.reason, amount:o.items[0].p * o.items[0].q, photo:S.draft.photo };
+  } else {
+    o.ret = { status:'review', reason:S.draft.reason, why:'photo', photo:S.draft.photo };
+  }
+  S.screen = 'ret_result';
+  render();
+}
+
+function screenResult(){
+  const o = order(S.draft.orderId);
+  const ok = o.ret.status === 'verified';
+  const r = REASONS.find(x => x.id === o.ret.reason);
+  return `
+  ${topbar(ok ? 'Return approved' : 'Needs a human look','Order ' + o.id,'order')}
+  <div class="sec">
+    <div class="stat">
+      <div class="ring" style="background:${ok ? 'var(--green-soft)' : 'var(--amber-soft)'}">${ok ? '✅' : '🔍'}</div>
+      <h2>${ok ? 'Approved automatically' : 'Sent for review'}</h2>
+      <p>${ok
+        ? `Your photo matched the order and the reason "${r.t}". No call, no chat, no waiting.`
+        : `The photo didn't show what "${r.t}" claims, so it goes to a support agent instead of being rejected outright.`}</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row"><span class="k">Item</span><span>${o.items[0].n}</span></div>
+      <div class="row"><span class="k">Reason</span><span>${r.t}</span></div>
+      <div class="row"><span class="k">Verification</span><span>${ok ? '<b style="color:var(--green)">Passed · 94%</b>' : '<b style="color:var(--amber)">Inconclusive</b>'}</span></div>
+      <div class="row"><span class="k">Decision time</span><span>${ok ? '6 seconds' : '6 seconds + agent'}</span></div>
+      ${ok ? `<div class="row total"><span>Refund on collection</span><span>${money(o.ret.amount)}</span></div>` : ''}
+    </div>
+
+    ${ok ? `
+      <div class="note" style="margin-top:12px">Keep the item in its packaging with the Shield seal unbroken. The agent scans the seal at collection — that's the second half of the check.</div>
+      <div style="margin-top:12px"><button class="btn navy" data-act="toPickup">Schedule collection</button></div>`
+    : `
+      <div class="note warn" style="margin-top:12px">An agent reviews it within 6–12 hours. This return does not count against your quarterly quota unless it is approved.</div>
+      <div style="margin-top:12px; display:grid; gap:9px">
+        <button class="btn navy" data-act="retry">Retake the photo</button>
+        <button class="btn ghost" data-act="go" data-s="order">Back to order</button>
+      </div>`}
+  </div>`;
+}
+
+function screenPickup(){
+  const o = order(S.activeOrder);
+  const st = o.ret.pickStage || 0;
+  const steps = [
+    ['Pickup requested', 'Added to the next run from Baner dark store'],
+    ['Agent assigned', 'Imran · arriving with your area\'s next delivery'],
+    ['Agent at your door', 'Hand over the item with the seal unbroken'],
+    ['Seal scanned', 'Agent scans ' + o.seal + ' on his device']
+  ];
+  return `
+  ${topbar('Collection','Order ' + o.id,'order')}
+  <div class="sec">
+    <div class="card">
+      <ul class="tl" style="margin:0; padding:2px 0 0 26px">
+        ${steps.map((s,i) => `
+          <li class="${i < st ? 'done' : i === st ? 'now done' : ''}">
+            <div class="t">${s[0]}</div><div class="s">${i <= st ? s[1] : 'Pending'}</div>
+          </li>`).join('')}
+      </ul>
+    </div>
+    ${st >= 2 ? `
+      <div class="shield-card" style="margin-top:12px">
+        <h3 style="position:relative;z-index:1">${SHIELD_SVG} Seal check</h3>
+        <p style="position:relative;z-index:1">The agent scans the QR before accepting the item. An intact seal means unused; a broken seal ends the return.</p>
+        <div class="seal" style="margin-top:12px">
+          <canvas width="112" height="112" data-seal="${o.seal}"></canvas>
+          <div><div class="lb">Awaiting scan</div><div class="id">${o.seal}</div></div>
+        </div>
+        <div style="position:relative;z-index:1;margin-top:12px">
+          <button class="btn" style="background:var(--cyan);color:#08152B" data-act="scanSeal">Agent scans seal</button>
+        </div>
+      </div>`
+    : `<div style="margin-top:12px"><button class="btn navy" data-act="advPickup">${st === 0 ? 'Agent assigned' : 'Agent reached your door'}</button>
+       <div class="muted" style="text-align:center;margin-top:9px">Demo control — normally this happens on the next run.</div></div>`}
+  </div>`;
+}
+
+function screenSeal(){
+  const o = order(S.activeOrder);
+  const intact = S.demo.sealIntact;
+  return `
+  ${topbar('Scanning seal','Order ' + o.id,'order')}
+  <div class="sec">
+    <div class="cam" style="aspect-ratio:1/1; display:grid; place-items:center">
+      <canvas width="200" height="200" data-seal="${o.seal}" style="background:#fff;padding:12px;border-radius:12px"></canvas>
+      <div class="scan"></div>
+    </div>
+    <div class="stat" style="padding-top:20px">
+      <p id="scanmsg">Reading ${o.seal}…</p>
+    </div>
+  </div>`;
+}
+
+function screenRefund(){
+  const o = order(S.activeOrder);
+  const ok = o.ret.status === 'refunded';
+  return `
+  ${topbar(ok ? 'Refund processed' : 'Return rejected','Order ' + o.id,'orders')}
+  <div class="sec">
+    <div class="stat">
+      <div class="ring" style="background:${ok ? 'var(--green-soft)' : 'var(--red-soft)'}">${ok ? '💸' : '⛔'}</div>
+      <h2>${ok ? money(o.ret.amount) + ' on its way back' : 'Seal was broken'}</h2>
+      <p>${ok
+        ? 'Seal verified intact at collection. The refund was released the moment the agent scanned it.'
+        : 'The tamper seal on this item was broken, so it counts as used. The item stays with you, no refund is issued, and this attempt is logged on your trust profile.'}</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row"><span class="k">Item</span><span>${o.items[0].n}</span></div>
+      <div class="row"><span class="k">Seal ${o.seal}</span><span>${ok ? '<b style="color:var(--green)">Intact</b>' : '<b style="color:var(--red)">Broken</b>'}</span></div>
+      <div class="row"><span class="k">Photo check</span><span>Passed</span></div>
+      <div class="row"><span class="k">Shield returns used</span><span>${S.shieldUsed} of ${QUOTA} this quarter</span></div>
+      ${ok ? `<div class="row total"><span>Refunded to UPI</span><span>${money(o.ret.amount)}</span></div>` : ''}
+    </div>
+
+    ${ok ? `<div class="note" style="margin-top:12px">Both checks passed: the photo proved the complaint, the seal proved the item was unused. That's the whole idea — easy, but verified.</div>`
+         : `<div class="note bad" style="margin-top:12px">One broken seal doesn't block your account, but repeated attempts lower your trust score and can suspend Shield eligibility.</div>`}
+
+    <div style="margin-top:12px"><button class="btn ghost" data-act="go" data-s="orders">Back to orders</button></div>
+  </div>`;
+}
+
+function screenShield(){
+  const used = S.shieldUsed;
+  const rets = S.orders.filter(o => o.ret);
+  return `
+  ${topbar('Discovery Shield','Verified returns','home')}
+  <div class="sec">
+    <div class="shield-card">
+      <h3 style="position:relative;z-index:1">${SHIELD_SVG} ${QUOTA - used} of ${QUOTA} returns left</h3>
+      <p style="position:relative;z-index:1">Quota resets on ${QUARTER_END}. Trust score ${used >= QUOTA ? '74' : '92'}/100 · ${used >= QUOTA ? 'Watchlist' : 'Good standing'}</p>
+      <div class="quota" style="position:relative;z-index:1">${Array.from({length:QUOTA},(_,i)=>`<i class="${i<used?'used':''}"></i>`).join('')}</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="sec-t" style="margin-bottom:9px">How a Shield return works</div>
+      <ul class="tl" style="margin:0; padding:2px 0 0 26px">
+        ${[
+          ['Switch Shield on before ordering','The dark store applies a unique QR tamper seal while packing'],
+          ['Tap Return within 2 hours','The window starts when the order is handed to you'],
+          ['Pick a reason, take one photo','Wrong item, damaged, quality, or changed mind'],
+          ['Automated check runs in seconds','Detects the product, matches your order, reads the seal'],
+          ['Agent collects on the next run','Seal is scanned at the door — intact means unused'],
+          ['Refund released on the spot','Straight back to your original payment method']
+        ].map(s => `<li class="done"><div class="t">${s[0]}</div><div class="s">${s[1]}</div></li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="sec-t" style="margin-bottom:9px">What stops abuse</div>
+      <div class="muted" style="display:grid; gap:9px">
+        <div><b style="color:var(--ink)">Photo is mandatory.</b> No photo, no return — and the image has to support the reason you picked.</div>
+        <div><b style="color:var(--ink)">Seal is checked twice.</b> Once in your photo, once by the agent at collection.</div>
+        <div><b style="color:var(--ink)">Patterns are tracked.</b> Repeat reasons, repeat categories and rejected scans all lower your trust score.</div>
+        <div><b style="color:var(--ink)">Hard cap of ${QUOTA} per quarter.</b> Genuine mistakes are rare; ${QUOTA + 1} in three months is a pattern.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="sec-t" style="margin-bottom:9px">Your return history</div>
+      ${rets.length ? rets.map(o => `
+        <div class="oi">
+          <div class="im">${o.items[0].ic}</div>
+          <div><div class="nm">${o.items[0].n}</div><div class="un">${o.id} · ${REASONS.find(r=>r.id===o.ret.reason).t}</div></div>
+          <div style="margin-left:auto"><span class="pill ${o.ret.status==='refunded'?'g':o.ret.status==='rejected'?'r':'a'}">${retLabel(o)}</span></div>
+        </div>`).join('') : `<div class="muted">No returns yet.</div>`}
+    </div>
+  </div>`;
+}
+
+function topbar(t, s, back){
+  return `<div class="topbar">
+    ${back ? `<button class="back" data-act="go" data-s="${back}" aria-label="Back">←</button>` : ''}
+    <div><h2>${t}</h2>${s ? `<small>${s}</small>` : ''}</div>
+  </div>`;
+}
+
+/* ============================== RENDER ============================== */
+const SCREENS = {
+  home:screenHome, cat:screenCat, cart:screenCart, track:screenTrack, orders:screenOrders,
+  order:screenOrder, shield:screenShield, ret_reason:screenReason, ret_photo:screenPhoto,
+  ret_verify:screenVerify, ret_result:screenResult, ret_pickup:screenPickup,
+  ret_seal:screenSeal, ret_refund:screenRefund
+};
+
+function render(){
+  const v = $('#view');
+  v.innerHTML = `<div class="fade">${SCREENS[S.screen]()}</div>`;
+  v.scrollTop = 0;
+
+  document.querySelectorAll('canvas[data-seal]').forEach(c => drawSeal(c, c.dataset.seal));
+
+  // cart bar
+  const showBar = ['home','cat'].includes(S.screen) && cartCount();
+  $('#cartbar').innerHTML = showBar ? `
+    <div class="cartbar" data-act="go" data-s="cart">
+      <div><b>${cartCount()} item${cartCount()>1?'s':''}</b><small>${money(itemTotal())} · plus fees</small></div>
+      <div class="go">View cart ›</div>
+    </div>` : '';
+
+  // nav
+  const tabs = [['home','🏠','Home'],['shield','🛡','Shield'],['orders','🧾','Orders'],['cart','🛒','Cart']];
+  const cur = S.screen.startsWith('ret_') || S.screen === 'order' || S.screen === 'track' ? 'orders'
+            : S.screen === 'cat' ? 'home' : S.screen;
+  $('#nav').innerHTML = tabs.map(([id,ic,nm]) => `
+    <button class="${cur===id?'on':''}" data-act="go" data-s="${id}">
+      <span class="ic">${ic}</span>${id==='cart'&&cartCount()?`<span class="dot">${cartCount()}</span>`:''}<span>${nm}</span>
+    </button>`).join('');
+
+  if (S.screen === 'ret_verify') runVerification();
+  if (S.screen === 'ret_seal')   runSealScan();
+}
+
+/* countdown ticks without a full re-render */
+setInterval(() => {
+  const el = document.getElementById('cd');
+  if (el && S.screen === 'order'){
+    const o = order(S.activeOrder);
+    if (o && o.deliveredAt) el.textContent = fmtTime(windowLeft(o));
+  }
+}, 1000);
+
+function runSealScan(){
+  const o = order(S.activeOrder);
+  setTimeout(() => {
+    const intact = S.demo.sealIntact;
+    const m = document.getElementById('scanmsg');
+    if (m) m.innerHTML = intact
+      ? '<b style="color:var(--green)">Seal intact.</b> Item accepted, releasing refund…'
+      : '<b style="color:var(--red)">Seal broken.</b> Item marked as used, return rejected…';
+    setTimeout(() => {
+      if (intact) o.ret = {...o.ret, status:'refunded', pickStage:3};
+      else { o.ret = {...o.ret, status:'rejected', why:'seal', pickStage:3}; }
+      S.screen = 'ret_refund'; render();
+    }, 1500);
+  }, S.demo.fast ? 1600 : 3000);
+}
+
+/* ============================== DEMO PANEL ============================== */
+function demoSheet(){
+  return `<div class="inner">
+    <h4>Demo controls</h4>
+    <div class="sub">Nothing here is a real model — these switches force the outcome so you can show every path on stage.</div>
+    <div class="sw">
+      <div class="tx"><div class="t">Photo supports the reason</div><div class="d">Off = verification fails and routes to human review</div></div>
+      <button class="toggle ${S.demo.photoMatch?'on':''}" data-act="dm" data-k="photoMatch"></button>
+    </div>
+    <div class="sw">
+      <div class="tx"><div class="t">Tamper seal intact at collection</div><div class="d">Off = return rejected at the door, no refund</div></div>
+      <button class="toggle ${S.demo.sealIntact?'on':''}" data-act="dm" data-k="sealIntact"></button>
+    </div>
+    <div class="sw">
+      <div class="tx"><div class="t">Fast timings</div><div class="d">Speeds up delivery and verification steps</div></div>
+      <button class="toggle ${S.demo.fast?'on':''}" data-act="dm" data-k="fast"></button>
+    </div>
+    <div class="sw">
+      <div class="tx"><div class="t">Shield returns used</div><div class="d">Set to 3 to show the quarterly cap blocking a return</div></div>
+      <div class="segs">${[0,1,2,3].map(n=>`<button class="${S.shieldUsed===n?'on':''}" data-act="quota" data-n="${n}">${n}</button>`).join('')}</div>
+    </div>
+    <div style="display:grid;gap:9px;margin-top:16px">
+      <button class="btn ghost" data-act="reset">Reset the demo</button>
+      <button class="btn" style="background:rgba(255,255,255,.12)" data-act="closeSheet">Close</button>
+    </div>
+  </div>`;
+}
+
+/* ============================== EVENTS ============================== */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+
+  if (a === 'inc'){ S.cart[id] = (S.cart[id]||0)+1; render(); }
+  else if (a === 'dec'){ S.cart[id]--; if (S.cart[id] <= 0) delete S.cart[id]; render(); }
+  else if (a === 'cat'){ S.cat = id; S.screen = 'cat'; render(); }
+  else if (a === 'go'){
+    S.screen = el.dataset.s;
+    if (el.dataset.cat) { S.cat = el.dataset.cat; }
+    render();
+  }
+  else if (a === 'shieldToggle'){ S.cartShield = S.cartShield === false; render(); }
+  else if (a === 'place'){ placeOrder(S.cartShield !== false); }
+  else if (a === 'open'){ S.activeOrder = id; S.screen = 'order'; render(); }
+  else if (a === 'retStart'){ S.draft = {orderId:id, reason:null, photo:null}; S.screen = 'ret_reason'; render(); }
+  else if (a === 'reason'){ S.draft.reason = id; render(); }
+  else if (a === 'toPhoto'){ S.screen = 'ret_photo'; render(); }
+  else if (a === 'sample'){ S.draft.photo = samplePhoto(order(S.draft.orderId), true); render(); }
+  else if (a === 'verify'){ S.screen = 'ret_verify'; render(); }
+  else if (a === 'retry'){ order(S.draft.orderId).ret = null; S.draft.photo = null; S.screen = 'ret_photo'; render(); }
+  else if (a === 'toPickup'){ const o = order(S.draft.orderId); o.ret.status = 'pickup'; o.ret.pickStage = 0; S.activeOrder = o.id; S.screen = 'ret_pickup'; render(); }
+  else if (a === 'advPickup'){ const o = order(S.activeOrder); o.ret.pickStage = (o.ret.pickStage||0)+1; render(); }
+  else if (a === 'scanSeal'){ S.screen = 'ret_seal'; render(); }
+  else if (a === 'demo'){ const s = $('#sheet'); s.innerHTML = demoSheet(); s.classList.add('open'); }
+  else if (a === 'closeSheet'){ $('#sheet').classList.remove('open'); }
+  else if (a === 'dm'){ S.demo[el.dataset.k] = !S.demo[el.dataset.k]; $('#sheet').innerHTML = demoSheet(); }
+  else if (a === 'quota'){ S.shieldUsed = +el.dataset.n; $('#sheet').innerHTML = demoSheet(); render(); }
+  else if (a === 'reset'){ S.cart = {}; S.orders = []; S.shieldUsed = 0; S.draft = null; S.cartShield = undefined; S.screen = 'home'; $('#sheet').classList.remove('open'); render(); }
+});
+
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sheet').classList.remove('open'); });
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'q'){
+    S.q = e.target.value;
+    const box = $('#view').querySelector('.sec:last-child');
+    const list = S.q ? PRODUCTS.filter(p => p.n.toLowerCase().includes(S.q.toLowerCase())) : PRODUCTS.slice(0,8);
+    box.innerHTML = `<div class="sec-t">${S.q ? 'Results for "' + esc(S.q) + '"' : 'Bestsellers'}</div>` +
+      (list.length ? `<div class="grid">${list.map(pCard).join('')}</div>`
+                   : `<div class="empty"><div class="e">🔍</div><p>Nothing matched that. Try "milk" or "coffee".</p></div>`);
+  }
+});
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'shot' && e.target.files && e.target.files[0]){
+    const fr = new FileReader();
+    fr.onload = () => { S.draft.photo = fr.result; render(); };
+    fr.readAsDataURL(e.target.files[0]);
+  }
+});
+
+render();
+</script>
+</body>
+</html>
