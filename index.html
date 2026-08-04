@@ -237,6 +237,45 @@ nav .dot{position:absolute; transform:translate(14px,-4px); background:var(--red
 .fade{animation:fi .22s ease-out}
 @keyframes fi{from{opacity:0; transform:translateY(6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.fade{animation:none}}
+
+/* ---------- discovery / AI recommendation layer ---------- */
+.ai-tag{display:inline-flex; align-items:center; gap:6px; font-size:9.5px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; color:#4B5BD1; background:#EEF0FE; border-radius:20px; padding:4px 9px}
+.ai-h{font-size:15px; font-weight:750; letter-spacing:-.015em; margin-top:9px}
+.rec{background:#fff; border:1px solid var(--line); border-radius:var(--r); padding:12px; margin-bottom:9px}
+.rec.dark{background:rgba(255,255,255,.05); border-color:rgba(111,168,255,.2)}
+.rec-top{display:flex; gap:11px; align-items:flex-start; cursor:pointer}
+.rec .cic{width:40px; height:40px; border-radius:11px; background:var(--bg); display:grid; place-items:center; font-size:21px; flex:none}
+.rec.dark .cic{background:rgba(255,255,255,.08)}
+.rec .nm{font-size:13.5px; font-weight:700; letter-spacing:-.01em}
+.rec.dark .nm{color:#fff}
+.rec .why{font-size:11.5px; color:var(--muted); line-height:1.45; margin-top:3px}
+.rec.dark .why{color:#9FB4D4}
+.match{font-size:10px; font-weight:800; color:#4B5BD1; white-space:nowrap}
+.rec.dark .match{color:#8FC0FF}
+.rec-p{display:flex; align-items:center; gap:10px; margin-top:11px; padding-top:11px; border-top:1px dashed var(--line)}
+.rec.dark .rec-p{border-top-color:rgba(255,255,255,.13)}
+.rec-p .pi{width:38px; height:38px; border-radius:9px; background:var(--bg); display:grid; place-items:center; font-size:19px; flex:none}
+.rec.dark .rec-p .pi{background:rgba(255,255,255,.08)}
+.rec-p .pn{font-size:12.5px; font-weight:600}
+.rec.dark .rec-p .pn{color:#fff}
+.rec-p .pu{font-size:11px; color:var(--muted)}
+.rec.dark .rec-p .pu{color:#8FA8CC}
+.addx{margin-left:auto; border:1px solid var(--green); color:var(--green); background:var(--green-soft); font-weight:800; font-size:11.5px; padding:8px 12px; border-radius:9px; cursor:pointer; white-space:nowrap}
+.rec.dark .addx{background:var(--cyan); border-color:var(--cyan); color:#08152B}
+.addx:active{transform:scale(.95)}
+.newdot{position:absolute; top:5px; right:5px; background:#4B5BD1; color:#fff; font-size:7.5px; font-weight:800; letter-spacing:.06em; padding:2px 5px; border-radius:5px}
+.lockrow{display:flex; gap:11px; align-items:flex-start; position:relative; z-index:1}
+.lockrow .lk{font-size:20px; line-height:1.2}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:11px}
+.chip{font-size:11px; font-weight:650; padding:5px 10px; border-radius:20px; border:1px solid var(--line); color:var(--muted)}
+.chip.done{background:var(--green-soft); border-color:#CDE7D2; color:var(--green)}
+.chip.todo{background:#EEF0FE; border-color:#D8DCFB; color:#4B5BD1}
+.protected{display:flex; gap:9px; align-items:center; background:rgba(255,255,255,.06); border-radius:9px; padding:8px 10px}
+.protected .tagp{margin-left:auto; font-size:9.5px; font-weight:800; color:#8FC0FF; letter-spacing:.06em}
+#toast:empty{display:none}
+.toast{position:absolute; left:12px; right:12px; bottom:74px; background:#0C1A33; color:#fff; border:1px solid rgba(111,168,255,.35); border-radius:12px; padding:12px 14px; font-size:12.5px; line-height:1.5; z-index:25; box-shadow:0 16px 36px rgba(0,0,0,.45); animation:tin .22s ease-out}
+.toast b{color:#8FC0FF}
+@keyframes tin{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
 </style>
 </head>
 <body>
@@ -245,15 +284,15 @@ nav .dot{position:absolute; transform:translate(14px,-4px); background:var(--red
   <div class="pitch">
     <div class="eyebrow">MVP Prototype</div>
     <h1>Discovery Shield</h1>
-    <p>A quick-commerce return that is <b style="color:#fff">easy but verified</b> — not "no questions asked". Opt in before you order, get a tamper seal, return in two taps and one photo.</p>
+    <p>Grocery buyers stay grocery buyers because trying a new category feels risky. Shield removes the risk — and it is <b style="color:#fff">earned by discovery</b>, not sold as an add-on.</p>
     <ol>
-      <li>Add items, turn on Shield in the cart</li>
-      <li>Order → sealed at dark store → delivered</li>
-      <li>Open the order → Return within 2 hours</li>
-      <li>Reason → one photo → AI verdict in seconds</li>
-      <li>Agent collects → seal scan → refund</li>
+      <li>Cart is all groceries → Shield stays locked</li>
+      <li>AI suggests 3 categories you've never ordered</li>
+      <li>Add one → Shield unlocks free, seal applied</li>
+      <li>Not right? One photo, verified return in 2 hours</li>
+      <li>Order without one → 3 picks for next time</li>
     </ol>
-    <p style="margin-top:18px">Use the <code>⚙</code> button on the phone to force a failed photo check, a broken seal, or an exhausted quarterly quota.</p>
+    <p style="margin-top:18px">Use the <code>⚙</code> button on the phone to force a failed photo check, a broken seal, an exhausted quota, or to mark every category as already tried.</p>
   </div>
 
   <div class="phone">
@@ -261,6 +300,7 @@ nav .dot{position:absolute; transform:translate(14px,-4px); background:var(--red
     <div id="cartbar"></div>
     <nav id="nav"></nav>
     <button class="fab" data-act="demo" aria-label="Demo controls">⚙</button>
+    <div id="toast"></div>
     <div class="sheet" id="sheet"></div>
   </div>
 </div>
@@ -322,6 +362,7 @@ const S = {
   activeOrder:null,
   draft:null,          // {orderId, reason, photo}
   shieldUsed:0,
+  tried:[],            // demo override: categories treated as already ordered
   demo:{ photoMatch:true, sealIntact:true, fast:true }
 };
 
@@ -336,11 +377,12 @@ const cartCount = () => Object.values(S.cart).reduce((a,b)=>a+b,0);
 const itemTotal = () => cartItems().reduce((a,i)=>a+i.p*i.q,0);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function bill(shield){
+function bill(fee){
   const it = itemTotal();
   const del = it >= 199 ? 0 : 25;
   const handling = 4;
-  return { it, del, handling, shield: shield ? SHIELD_FEE : 0, total: it + del + handling + (shield ? SHIELD_FEE : 0) };
+  fee = fee || 0;
+  return { it, del, handling, shield: fee, total: it + del + handling + fee };
 }
 
 function sealId(){
@@ -386,7 +428,7 @@ function samplePhoto(order, ok){
   x.fillStyle = '#fff'; x.fillRect(70,90,280,250);
   x.strokeStyle = '#B9C4D4'; x.lineWidth = 3; x.strokeRect(70,90,280,250);
   x.font = '110px serif'; x.textAlign = 'center';
-  x.fillText(order.items[0].ic, 210, 235);
+  x.fillText(shieldedItem(order).ic, 210, 235);
   x.fillStyle = ok ? '#0C831F' : '#D33B2C';
   x.fillRect(70, 300, 280, 40);
   x.fillStyle = '#fff'; x.font = 'bold 15px sans-serif';
@@ -399,13 +441,20 @@ function samplePhoto(order, ok){
 /* ============================== ORDER LIFECYCLE ============================== */
 const STAGES = ['Order placed','Packed & sealed','Out for delivery','Delivered'];
 
-function placeOrder(shield){
-  const b = bill(shield);
+function placeOrder(){
+  const mode = shieldMode();
+  const shield = mode === 'free' || (mode === 'paid' && S.cartShield !== false);
+  const fee = mode === 'free' ? 0 : (shield ? SHIELD_FEE : 0);
+  const b = bill(fee);
+  const disc = newCatsInCart();
   const o = {
     id: 'BK' + Date.now().toString().slice(-8),
     items: cartItems(),
     bill: b,
     shield,
+    shieldFree: mode === 'free',
+    discoveryCats: disc,
+    groceryOnly: disc.length === 0,
     seal: shield ? sealId() : null,
     stage: 0,
     placedAt: Date.now(),
@@ -430,6 +479,8 @@ function advance(o){
 }
 
 const order = id => S.orders.find(o => o.id === id);
+/* Shield covers the thing you tried for the first time */
+const shieldedItem = o => o.items.find(i => (o.discoveryCats || []).includes(i.c)) || o.items[0];
 const windowLeft = o => o.deliveredAt ? (o.deliveredAt + 2*3600*1000) - Date.now() : null;
 const canReturn = o => o.shield && o.stage === 3 && windowLeft(o) > 0 && !o.ret && S.shieldUsed < QUOTA;
 
@@ -450,20 +501,20 @@ function screenHome(){
     <div class="search">🔎<input id="q" placeholder="Search for atta, dal, coke and more" value="${esc(S.q)}"></div>
   </div>
 
-  <div class="sec">
+  ${homeDiscovery()}
+
+  <div class="sec" style="padding-top:0">
     <div class="shield-card" data-act="go" data-s="shield" style="cursor:pointer">
-      <h3>${SHIELD_SVG} Discovery Shield</h3>
-      <p>Turn it on in the cart for ${money(SHIELD_FEE)}. Your order arrives with a tamper seal, and you can return it within 2 hours with one photo — verified in seconds.</p>
+      <h3>${SHIELD_SVG} What Discovery Shield covers</h3>
+      <p>It's free on any category you haven't ordered from before. Tamper seal at packing, one-photo return within 2 hours, refund the moment the agent scans the seal.</p>
       <div style="margin-top:11px" class="badge-sh">How it works →</div>
     </div>
   </div>
 
-  ${homeDiscoveryCard()}
-
   <div class="sec" style="padding-top:0">
     <div class="sec-t">Shop by category</div>
     <div class="cats">
-      ${CATS.map(c => `<div class="cat" data-act="cat" data-id="${c.id}"><div class="ic">${c.ic}</div><div class="nm">${c.name}</div></div>`).join('')}
+      ${CATS.map(c => `<div class="cat" data-act="cat" data-id="${c.id}" style="position:relative">${isNewCat(c.id) ? '<span class="newdot">NEW</span>' : ''}<div class="ic">${c.ic}</div><div class="nm">${c.name}</div></div>`).join('')}
     </div>
   </div>
 
@@ -477,8 +528,21 @@ function screenHome(){
 function screenCat(){
   const c = CATS.find(x => x.id === S.cat);
   const list = PRODUCTS.filter(p => p.c === S.cat);
+  const fresh = isNewCat(c.id);
   return `
   ${topbar(c.ic + ' ' + c.name, list.length + ' items', 'home')}
+  ${fresh ? `
+  <div class="sec" style="padding-bottom:0">
+    <div class="shield-card">
+      <div class="lockrow">
+        <span class="lk">🎁</span>
+        <div style="flex:1">
+          <h3 style="margin:0">First time in ${c.name}</h3>
+          <p style="margin-top:4px">Anything you add here comes with Discovery Shield free — sealed at packing, returnable in 2 hours with one photo.</p>
+        </div>
+      </div>
+    </div>
+  </div>` : ''}
   <div class="sec"><div class="grid">${list.map(pCard).join('')}</div></div>`;
 }
 
@@ -503,8 +567,9 @@ function screenCart(){
     <div class="empty"><div class="e">🛒</div><p>Your cart is empty.<br>Add a few things to try the Shield flow.</p>
     <button class="btn" data-act="go" data-s="home" style="max-width:200px;margin:0 auto">Start shopping</button></div>`;
 
+  const mode = shieldMode();
   const on = S.cartShield !== false;
-  const b = bill(on);
+  const b = bill(mode === 'free' ? 0 : (mode === 'paid' && on ? SHIELD_FEE : 0));
   return `
   ${topbar('Your cart', cartCount() + ' items · 8 min delivery', 'home')}
   <div class="sec">
@@ -520,180 +585,208 @@ function screenCart(){
         </div>`).join('')}
     </div>
 
-    ${cartIsGroceryOnly() ? cartDiscoveryNudge() : ''}
+    ${mode === 'free' ? cartShieldEarned() : mode === 'locked' ? cartShieldLocked() : cartShieldPaid(on)}
 
+    <div class="card" style="margin-top:12px">
+      <div class="row"><span class="k">Item total</span><span>${money(b.it)}</span></div>
+      <div class="row"><span class="k">Delivery</span><span>${b.del ? money(b.del) : '<b style="color:var(--green)">FREE</b>'}</span></div>
+      <div class="row"><span class="k">Handling</span><span>${money(b.handling)}</span></div>
+      ${mode === 'free'
+        ? `<div class="row"><span class="k">Discovery Shield</span><span><s style="color:var(--muted)">${money(SHIELD_FEE)}</s> <b style="color:var(--green)">FREE</b></span></div>`
+        : (mode === 'paid' && on) ? `<div class="row"><span class="k">Discovery Shield</span><span>${money(SHIELD_FEE)}</span></div>` : ''}
+      <div class="row total"><span>To pay</span><span>${money(b.total)}</span></div>
+    </div>
+    ${mode === 'locked' ? `<div class="note warn" style="margin-top:10px">This order ships without a tamper seal, so the 2-hour return won't apply. Add one new-category item to change that.</div>` : ''}
+  </div>
+  <div class="bar"><button class="btn" data-act="place">Place order · ${money(b.total)}</button></div>`;
+}
+
+/* ============================== NEW-CATEGORY DISCOVERY ENGINE ============================== */
+/* A category is "new" for this user if it isn't a grocery staple and they have never
+   ordered from it. Groceries are never new — that's the habit we're trying to break out of.
+   Shield is not sold; it is earned by putting something new in the basket. */
+const GROCERY_IDS = CATS.filter(c => c.grocery).map(c => c.id);
+const NEW_CATS = CATS.filter(c => !c.grocery);
+
+/* what the recommender claims to know, and the signal it says it used */
+const CAT_INTEL = {
+  drink: {base:91, why:'Your basket has breakfast covered but nothing to drink with it.',
+          signal:'Signal: 6 dairy orders, 0 beverage orders'},
+  snack: {base:88, why:'Shoppers with your basket reorder snacks 4× more than they expect to.',
+          signal:'Signal: repeat staples, no impulse category yet'},
+  care:  {base:84, why:'Highest repeat rate in Balewadi — and the category people hesitate most to try online.',
+          signal:'Signal: category never opened in 30 days'},
+  home:  {base:80, why:'You restock groceries every 6 days; cleaning supplies run out on the same cycle.',
+          signal:'Signal: 6-day reorder rhythm'}
+};
+/* categories that make a pick more likely once they are in the cart */
+const PAIRS = { drink:['dairy'], snack:['dairy','veg'], care:['home'], home:['veg'] };
+
+function triedCatIds(){
+  const set = new Set(GROCERY_IDS);
+  S.orders.forEach(o => o.items.forEach(i => set.add(i.c)));
+  S.tried.forEach(c => set.add(c));
+  return set;
+}
+const isNewCat = id => !triedCatIds().has(id);
+const catName  = id => CATS.find(c => c.id === id).name;
+
+/* ranked picks — the score moves with what's in the cart, so it reads like a live model */
+function rankedNewCats(limit){
+  const tried = triedCatIds();
+  const inCart = new Set(cartItems().map(i => i.c));
+  return NEW_CATS
+    .filter(c => !tried.has(c.id))
+    .map(c => {
+      const t = CAT_INTEL[c.id];
+      const boost = (PAIRS[c.id] || []).some(p => inCart.has(p)) ? 6 : 0;
+      const hero = PRODUCTS.filter(p => p.c === c.id).sort((a,b) => (b.m-b.p)-(a.m-a.p))[0];
+      return {...c, why:t.why, signal:t.signal, score:Math.min(97, t.base + boost), hero};
+    })
+    .sort((a,b) => b.score - a.score)
+    .slice(0, limit);
+}
+
+const discoveryItems = () => cartItems().filter(i => isNewCat(i.c));
+const newCatsInCart  = () => [...new Set(discoveryItems().map(i => i.c))];
+const cartIsGroceryOnly = () => cartCount() > 0 && discoveryItems().length === 0;
+
+/* free = earned by discovery · locked = grocery-only · paid = nothing left to discover */
+function shieldMode(){
+  if (discoveryItems().length) return 'free';
+  if (rankedNewCats(3).length) return 'locked';
+  return 'paid';
+}
+
+/* ---- shared recommendation tile ---- */
+function recTile(r, dark){
+  return `
+    <div class="rec ${dark ? 'dark' : ''}">
+      <div class="rec-top" data-act="go" data-s="cat" data-cat="${r.id}">
+        <div class="cic">${r.ic}</div>
+        <div style="flex:1; min-width:0">
+          <div style="display:flex; justify-content:space-between; gap:8px; align-items:baseline">
+            <div class="nm">${r.name}</div>
+            <div class="match">${r.score}% match</div>
+          </div>
+          <div class="why">${r.why}</div>
+          <div class="why" style="opacity:.75; font-size:10.5px; margin-top:4px">${r.signal}</div>
+        </div>
+      </div>
+      <div class="rec-p">
+        <div class="pi">${r.hero.ic}</div>
+        <div style="min-width:0">
+          <div class="pn">${r.hero.n}</div>
+          <div class="pu">${r.hero.u} · ${money(r.hero.p)}</div>
+        </div>
+        <button class="addx" data-act="addPick" data-id="${r.hero.id}">ADD · Shield free</button>
+      </div>
+    </div>`;
+}
+
+/* ---- home: always-on tempt ---- */
+function homeDiscovery(){
+  const picks = rankedNewCats(3);
+  if (!picks.length) return `
+    <div class="sec">
+      <div class="shield-card">
+        <div style="position:relative; z-index:1">
+          <h3>🎉 You've ordered from every category</h3>
+          <p>Nothing left to discover, so Shield goes back to being a ${money(SHIELD_FEE)} add-on in the cart.</p>
+        </div>
+      </div>
+    </div>`;
+  return `
+    <div class="sec">
+      <div class="ai-tag">✨ Picked by Blinkit AI</div>
+      <div class="ai-h">3 categories you've never ordered</div>
+      <div class="muted" style="margin:4px 0 12px">Your first order from any of these unlocks Discovery Shield free — if it's not right, one photo gets you a refund in 2 hours.</div>
+      ${picks.map(r => recTile(r, false)).join('')}
+    </div>`;
+}
+
+/* ---- cart: Shield earned ---- */
+function cartShieldEarned(){
+  const items = discoveryItems();
+  const cats = newCatsInCart().map(catName).join(' and ');
+  return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative; z-index:1">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px">
+          <h3>${SHIELD_SVG} Shield unlocked · free</h3>
+          <span class="badge-sh">Saved ${money(SHIELD_FEE)}</span>
+        </div>
+        <p>Your first order from <b style="color:#fff">${cats}</b>. The dark store seals the box while packing — no separate opt-in needed.</p>
+        <div style="margin-top:11px; display:grid; gap:7px">
+          ${items.map(i => `
+            <div class="protected">
+              <span style="font-size:18px">${i.ic}</span>
+              <span style="font-size:12.5px; font-weight:600">${i.n}</span>
+              <span class="tagp">PROTECTED</span>
+            </div>`).join('')}
+        </div>
+        <div style="margin-top:12px; display:grid; gap:7px; font-size:11.5px; color:#A9BEDE">
+          <div>✓ 2-hour return window from delivery</div>
+          <div>✓ One photo, AI-verified in seconds</div>
+          <div>✓ ${QUOTA - S.shieldUsed} of ${QUOTA} Shield returns left this quarter</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ---- cart: grocery-only, Shield locked, AI picks inline ---- */
+function cartShieldLocked(){
+  const picks = rankedNewCats(3);
+  return `
+    <div class="shield-card" style="margin-top:12px">
+      <div class="lockrow">
+        <span class="lk">🔒</span>
+        <div style="flex:1">
+          <h3 style="margin:0">Discovery Shield is locked</h3>
+          <p style="margin-top:4px">Every item in your cart is one you've bought before, so there's nothing to protect. Add one thing you've never tried and Shield turns on free.</p>
+        </div>
+      </div>
+      <div style="position:relative; z-index:1; margin-top:14px">
+        <div class="ai-tag" style="background:rgba(111,168,255,.14); color:#8FC0FF">✨ Blinkit AI · picked for this cart</div>
+        <div style="margin-top:11px">${picks.map(r => recTile(r, true)).join('')}</div>
+      </div>
+    </div>`;
+}
+
+/* ---- cart: everything explored, Shield back to paid add-on ---- */
+function cartShieldPaid(on){
+  return `
     <div class="shield-card" style="margin-top:12px">
       <div style="display:flex; gap:12px; align-items:flex-start; position:relative; z-index:1">
         <div style="flex:1">
-          ${cartHasNewCategory() ? `
-            <h3>🎉 New category, Shield applied · ${money(SHIELD_FEE)}</h3>
-            <p>You're trying something new this order — <b style="color:#fff">Discovery Shield covers it automatically</b>. Tamper seal on packing, 2-hour verified return if it's not right.</p>
-          ` : `
-            <h3>${SHIELD_SVG} Add Discovery Shield · ${money(SHIELD_FEE)}</h3>
-            <p>Must be switched on <b style="color:#fff">before you order</b> — the dark store applies the tamper seal while packing. It can't be added later.</p>
-          `}
+          <h3>${SHIELD_SVG} Add Discovery Shield · ${money(SHIELD_FEE)}</h3>
+          <p>You've ordered from every category, so there's no free trial to cover. Shield still works as a paid add-on — switch it on before ordering, it can't be added later.</p>
         </div>
         <button class="toggle ${on ? 'on' : ''}" data-act="shieldToggle" aria-label="Discovery Shield"></button>
       </div>
       <div style="position:relative; z-index:1; margin-top:12px; display:grid; gap:7px; font-size:11.5px; color:#A9BEDE">
         <div>✓ 2-hour return window from delivery</div>
         <div>✓ One photo, AI-verified in seconds</div>
-        <div>✓ Agent collects on the next run, refund on seal check</div>
         <div>✓ ${QUOTA - S.shieldUsed} of ${QUOTA} Shield returns left this quarter</div>
       </div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="row"><span class="k">Item total</span><span>${money(b.it)}</span></div>
-      <div class="row"><span class="k">Delivery</span><span>${b.del ? money(b.del) : '<b style="color:var(--green)">FREE</b>'}</span></div>
-      <div class="row"><span class="k">Handling</span><span>${money(b.handling)}</span></div>
-      ${on ? `<div class="row"><span class="k">Discovery Shield</span><span>${money(SHIELD_FEE)}</span></div>` : ''}
-      <div class="row total"><span>To pay</span><span>${money(b.total)}</span></div>
-    </div>
-    ${!on ? `<div class="note warn" style="margin-top:10px">Shield is off. This order ships without a tamper seal and can't use the 2-hour return.</div>` : ''}
-  </div>
-  <div class="bar"><button class="btn" data-act="place">Place order · ${money(b.total)}</button></div>`;
-}
-
-/* ============================== NEW-CATEGORY DISCOVERY ENGINE ============================== */
-/* Rules-based (Phase 1) — no external API. A category is "new" for this user if it isn't
-   grocery AND they haven't ordered from it yet this session. */
-const GROCERY_IDS = CATS.filter(c => c.grocery).map(c => c.id);
-const NEW_CATS = CATS.filter(c => !c.grocery);
-
-const CAT_PITCH = {
-  snack: { headline: 'Snack cravings, sorted',        reason: 'Keep a stash ready for the next mid-week craving — delivered with your groceries.' },
-  drink: { headline: 'Something to sip on',           reason: 'A good drink makes the weekly grocery run feel a little less routine.' },
-  care:  { headline: 'Take care of yourself too',     reason: 'Your basket has the essentials sorted — this one is just for you.' },
-  home:  { headline: 'Round out your basket',         reason: "Household items you'll need eventually — might as well add them now." }
-};
-
-function orderedCategoryIds(){
-  const set = new Set();
-  S.orders.forEach(o => o.items.forEach(i => set.add(i.c)));
-  return set;
-}
-
-function untriedNewCategories(){
-  const tried = orderedCategoryIds();
-  return NEW_CATS.filter(c => !tried.has(c.id));
-}
-
-function cartIsGroceryOnly(){
-  const items = cartItems();
-  return items.length > 0 && items.every(i => GROCERY_IDS.includes(i.c));
-}
-
-function cartHasNewCategory(){
-  return cartItems().some(i => !GROCERY_IDS.includes(i.c));
-}
-
-function orderIsGroceryOnly(o){
-  return o.items.every(i => GROCERY_IDS.includes(i.c));
-}
-
-/* Build a lightweight "recommendation" for a category using real catalog products */
-function categoryPick(cat){
-  const pitch = CAT_PITCH[cat.id] || { headline: `Try ${cat.name}`, reason: 'Delivered with your groceries, protected by Discovery Shield.' };
-  const items = PRODUCTS.filter(p => p.c === cat.id).slice(0, 2);
-  return { ...cat, ...pitch, items };
-}
-
-function newCategoryPicks(limit){
-  return untriedNewCategories().slice(0, limit).map(categoryPick);
-}
-
-/* ---- Card renderers ---- */
-function categoryPickTile(p){
-  return `
-    <div class="opt" style="margin-bottom:8px" data-act="go" data-s="cat" data-cat="${p.id}">
-      <div class="ic">${p.ic}</div>
-      <div style="flex:1">
-        <div class="t">${p.headline}</div>
-        <div class="d">${p.reason}</div>
-        ${p.items.length ? `<div style="margin-top:6px;display:flex;gap:6px">${p.items.map(i=>`<span class="pill n">${i.ic} ${i.n}</span>`).join('')}</div>` : ''}
-      </div>
     </div>`;
 }
 
-/* Home page — always-on discovery teaser */
-function homeDiscoveryCard(){
-  const picks = newCategoryPicks(3);
-  if (!picks.length) return `
-    <div class="shield-card" style="margin-top:12px">
-      <div style="position:relative;z-index:1">
-        <h3>🎉 You've explored every category</h3>
-        <p>Every category on Blinkit is now familiar territory for you. Nice work.</p>
-      </div>
-    </div>`;
-  return `
-    <div class="sec" style="padding-top:0">
-      <div class="sec-t">
-        <span style="display:inline-flex;align-items:center;gap:6px">✨ New for you <span class="pill n" style="font-size:9px">Shield protected</span></span>
-      </div>
-      ${picks.map(categoryPickTile).join('')}
-    </div>`;
-}
-
-/* Cart screen — nudge shown only when the cart is grocery-only */
-function cartDiscoveryNudge(){
-  const picks = newCategoryPicks(3);
+/* ---- after checkout: 3 picks for the next order ---- */
+function postOrderDiscovery(o){
+  if (!o.groceryOnly) return '';
+  const picks = rankedNewCats(3);
   if (!picks.length) return '';
   return `
     <div class="shield-card" style="margin-top:12px">
-      <div style="position:relative;z-index:1">
-        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
-          ✨ Before you check out
-        </div>
-        <h3 style="font-size:15px;margin-bottom:5px">🛡️ Add something new, risk-free</h3>
-        <p style="margin-bottom:12px">Your cart is all groceries. Add one new-category item now and it's covered by the same 2-hour Discovery Shield return.</p>
-        <div style="display:grid;gap:8px">
-          ${picks.map(p => `
-            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px;cursor:pointer" data-act="go" data-s="cat" data-cat="${p.id}">
-              <span style="font-size:22px">${p.ic}</span>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600;color:#fff">${p.name}</div>
-                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">🛡️ Shield protected · 2-hr return</div>
-              </div>
-              <div style="font-size:16px;color:#6FA8FF">›</div>
-            </div>`).join('')}
-        </div>
+      <div style="position:relative; z-index:1">
+        <div class="ai-tag" style="background:rgba(111,168,255,.14); color:#8FC0FF">✨ Blinkit AI · for your next order</div>
+        <h3 style="margin-top:11px">3 categories worth trying next</h3>
+        <p>This order was all repeat buys, so it went out without a Shield. Add any one of these alongside your groceries next time and the trial is covered — seal, 2-hour return, instant refund.</p>
+        <div style="margin-top:12px">${picks.map(r => recTile(r, true)).join('')}</div>
       </div>
     </div>`;
 }
-
-/* Order confirmation — shown only if the order just placed was grocery-only */
-function confirmationDiscoveryCard(o){
-  if (!orderIsGroceryOnly(o)) return '';
-  const picks = newCategoryPicks(3);
-  if (!picks.length) return '';
-  return `
-    <div class="shield-card" style="margin-top:12px">
-      <div style="position:relative;z-index:1">
-        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
-          ✨ Recommended for next time
-        </div>
-        <h3 style="font-size:15px;margin-bottom:5px">🛡️ 3 categories worth trying</h3>
-        <p style="margin-bottom:12px">Order's confirmed — your trust is highest right now. Add any of these next time, alongside your groceries, and Discovery Shield covers it automatically.</p>
-        <div style="display:grid;gap:8px;margin-bottom:12px">
-          ${picks.map(p => `
-            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px;cursor:pointer" data-act="go" data-s="cat" data-cat="${p.id}">
-              <span style="font-size:22px">${p.ic}</span>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600;color:#fff">${p.name}</div>
-                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">${p.headline}</div>
-              </div>
-              <div style="font-size:16px;color:#6FA8FF">›</div>
-            </div>`).join('')}
-        </div>
-        <div style="background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.18);border-radius:10px;padding:10px 12px;font-size:11.5px;color:#A9BEDE;line-height:1.6">
-          <b style="color:#fff;display:block;margin-bottom:3px">🛡️ How the protection works</b>
-          Add groceries + one of these together, keep Shield on at checkout, and that new item gets a 2-hour verified return — no separate opt-in needed.
-        </div>
-      </div>
-    </div>`;
-}
-
 
 function screenTrack(){
   const o = order(S.activeOrder);
@@ -703,7 +796,8 @@ function screenTrack(){
   <div class="sec">
     ${o.shield ? `
     <div class="shield-card">
-      <h3 style="position:relative;z-index:1">${SHIELD_SVG} Shield active on this order</h3>
+      <h3 style="position:relative;z-index:1">${SHIELD_SVG} Shield active${o.shieldFree ? ' · free' : ''}</h3>
+      ${o.discoveryCats.length ? `<p style="position:relative;z-index:1">Covering your first ${o.discoveryCats.map(catName).join(' and ')} order — ${shieldedItem(o).n}.</p>` : ''}
       <div class="seal" style="margin-top:12px">
         <canvas width="112" height="112" data-seal="${o.seal}"></canvas>
         <div>
@@ -712,7 +806,7 @@ function screenTrack(){
           <div class="st">${o.stage >= 1 ? '● Applied at dark store · intact' : '○ Applying at dark store…'}</div>
         </div>
       </div>
-    </div>` : `<div class="note warn">No Shield on this order. The 2-hour verified return isn't available.</div>`}
+    </div>` : `<div class="note warn">All repeat buys, so no Shield on this order and no 2-hour return.</div>`}
 
     <div class="card" style="margin-top:12px">
       <ul class="tl" style="margin:0; padding:2px 0 0 26px">
@@ -731,7 +825,7 @@ function screenTrack(){
 
     ${done ? `<div style="margin-top:12px"><button class="btn ghost" data-act="open" data-id="${o.id}">View order & return options</button></div>` : ''}
 
-    ${o.stage === 0 ? confirmationDiscoveryCard(o) : ''}
+    ${postOrderDiscovery(o)}
   </div>`;
 }
 
@@ -788,6 +882,15 @@ function screenOrder(){
         <h3>${SHIELD_SVG} Discovery Shield</h3>
         ${o.ret ? '' : `<span class="badge-sh">${left > 0 ? 'Window open' : 'Window closed'}</span>`}
       </div>
+      ${o.discoveryCats && o.discoveryCats.length ? `
+      <div class="protected" style="position:relative; z-index:1; margin-top:12px">
+        <span style="font-size:18px">${shieldedItem(o).ic}</span>
+        <div>
+          <div style="font-size:12.5px; font-weight:600">${shieldedItem(o).n}</div>
+          <div style="font-size:10.5px; color:#8FA8CC; margin-top:2px">First ${catName(o.discoveryCats[0])} order · covered free</div>
+        </div>
+        <span class="tagp">PROTECTED</span>
+      </div>` : ''}
       <div class="seal" style="margin-top:12px">
         <canvas width="112" height="112" data-seal="${o.seal}"></canvas>
         <div>
@@ -801,7 +904,7 @@ function screenOrder(){
           <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7E97BE;font-weight:700">Return window closes in</div>
           <div id="cd" style="font-family:ui-monospace,Menlo,monospace;font-size:27px;font-weight:700;margin-top:4px;letter-spacing:.02em">${fmtTime(left)}</div>
         </div>` : ''}
-    </div>` : `<div class="note warn" style="margin-top:12px">Shield wasn't switched on for this order, so there's no tamper seal and no 2-hour return. Turn it on in the cart next time.</div>`}
+    </div>` : `<div class="note warn" style="margin-top:12px">Every item here was a repeat buy, so this order shipped without a seal and can't use the 2-hour return. Shield comes free the moment you add a category you haven't tried.</div>`}
 
     ${o.ret ? returnStatusCard(o) : ''}
 
@@ -847,7 +950,7 @@ function screenReason(){
   return `
   ${topbar('Why are you returning this?','Step 1 of 3 · Order ' + o.id,'order')}
   <div class="sec">
-    ${o.items.length > 1 ? `<div class="muted" style="margin-bottom:11px">Returning: <b style="color:var(--ink)">${o.items[0].n}</b> · ${o.items[0].u}</div>` : ''}
+    ${o.items.length > 1 ? `<div class="muted" style="margin-bottom:11px">Returning: <b style="color:var(--ink)">${shieldedItem(o).n}</b> · ${shieldedItem(o).u}${(o.discoveryCats||[]).length ? ' · your first ' + catName(o.discoveryCats[0]) + ' buy' : ''}</div>` : ''}
     ${REASONS.map(r => `
       <div class="opt ${S.draft.reason === r.id ? 'sel' : ''}" data-act="reason" data-id="${r.id}">
         <div class="ic">${r.ic}</div>
@@ -948,7 +1051,7 @@ function finishVerification(ok){
   const o = order(S.draft.orderId);
   if (ok){
     S.shieldUsed++;
-    o.ret = { status:'verified', reason:S.draft.reason, amount:o.items[0].p * o.items[0].q, photo:S.draft.photo };
+    o.ret = { status:'verified', reason:S.draft.reason, amount:shieldedItem(o).p * shieldedItem(o).q, photo:S.draft.photo };
   } else {
     o.ret = { status:'review', reason:S.draft.reason, why:'photo', photo:S.draft.photo };
   }
@@ -972,7 +1075,7 @@ function screenResult(){
     </div>
 
     <div class="card" style="margin-top:16px">
-      <div class="row"><span class="k">Item</span><span>${o.items[0].n}</span></div>
+      <div class="row"><span class="k">Item</span><span>${shieldedItem(o).n}</span></div>
       <div class="row"><span class="k">Reason</span><span>${r.t}</span></div>
       <div class="row"><span class="k">Verification</span><span>${ok ? '<b style="color:var(--green)">Passed · 94%</b>' : '<b style="color:var(--amber)">Inconclusive</b>'}</span></div>
       <div class="row"><span class="k">Decision time</span><span>${ok ? '6 seconds' : '6 seconds + agent'}</span></div>
@@ -1059,7 +1162,7 @@ function screenRefund(){
     </div>
 
     <div class="card" style="margin-top:16px">
-      <div class="row"><span class="k">Item</span><span>${o.items[0].n}</span></div>
+      <div class="row"><span class="k">Item</span><span>${shieldedItem(o).n}</span></div>
       <div class="row"><span class="k">Seal ${o.seal}</span><span>${ok ? '<b style="color:var(--green)">Intact</b>' : '<b style="color:var(--red)">Broken</b>'}</span></div>
       <div class="row"><span class="k">Photo check</span><span>Passed</span></div>
       <div class="row"><span class="k">Shield returns used</span><span>${S.shieldUsed} of ${QUOTA} this quarter</span></div>
@@ -1086,10 +1189,18 @@ function screenShield(){
     </div>
 
     <div class="card" style="margin-top:12px">
+      <div class="sec-t" style="margin-bottom:9px">How you get Shield</div>
+      <div class="muted" style="line-height:1.6">Shield isn't sold — it's free on any order that includes a category you've never bought from. Groceries never count, because you already know what you're getting. Once you've tried every category it becomes a ${money(SHIELD_FEE)} add-on.</div>
+      <div class="chips">
+        ${CATS.map(c => `<span class="chip ${isNewCat(c.id) ? 'todo' : 'done'}">${c.ic} ${c.name} ${isNewCat(c.id) ? '· free Shield' : '· tried'}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
       <div class="sec-t" style="margin-bottom:9px">How a Shield return works</div>
       <ul class="tl" style="margin:0; padding:2px 0 0 26px">
         ${[
-          ['Switch Shield on before ordering','The dark store applies a unique QR tamper seal while packing'],
+          ['Add a category you have never tried','Shield turns on free and the dark store applies a QR tamper seal'],
           ['Tap Return within 2 hours','The window starts when the order is handed to you'],
           ['Pick a reason, take one photo','Wrong item, damaged, quality, or changed mind'],
           ['Automated check runs in seconds','Detects the product, matches your order, reads the seal'],
@@ -1113,8 +1224,8 @@ function screenShield(){
       <div class="sec-t" style="margin-bottom:9px">Your return history</div>
       ${rets.length ? rets.map(o => `
         <div class="oi">
-          <div class="im">${o.items[0].ic}</div>
-          <div><div class="nm">${o.items[0].n}</div><div class="un">${o.id} · ${REASONS.find(r=>r.id===o.ret.reason).t}</div></div>
+          <div class="im">${shieldedItem(o).ic}</div>
+          <div><div class="nm">${shieldedItem(o).n}</div><div class="un">${o.id} · ${REASONS.find(r=>r.id===o.ret.reason).t}</div></div>
           <div style="margin-left:auto"><span class="pill ${o.ret.status==='refunded'?'g':o.ret.status==='rejected'?'r':'a'}">${retLabel(o)}</span></div>
         </div>`).join('') : `<div class="muted">No returns yet.</div>`}
     </div>
@@ -1144,7 +1255,7 @@ function render(){
   document.querySelectorAll('canvas[data-seal]').forEach(c => drawSeal(c, c.dataset.seal));
 
   // cart bar
-  const showBar = ['home','cat'].includes(S.screen) && cartCount();
+  const showBar = ['home','cat','track','order','orders'].includes(S.screen) && cartCount();
   $('#cartbar').innerHTML = showBar ? `
     <div class="cartbar" data-act="go" data-s="cart">
       <div><b>${cartCount()} item${cartCount()>1?'s':''}</b><small>${money(itemTotal())} · plus fees</small></div>
@@ -1162,6 +1273,14 @@ function render(){
 
   if (S.screen === 'ret_verify') runVerification();
   if (S.screen === 'ret_seal')   runSealScan();
+}
+
+let toastT;
+function toast(html){
+  const t = $('#toast');
+  t.innerHTML = `<div class="toast">${html}</div>`;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.innerHTML = ''; }, 3200);
 }
 
 /* countdown ticks without a full re-render */
@@ -1210,6 +1329,13 @@ function demoSheet(){
       <div class="tx"><div class="t">Shield returns used</div><div class="d">Set to 3 to show the quarterly cap blocking a return</div></div>
       <div class="segs">${[0,1,2,3].map(n=>`<button class="${S.shieldUsed===n?'on':''}" data-act="quota" data-n="${n}">${n}</button>`).join('')}</div>
     </div>
+    <div class="sw">
+      <div class="tx"><div class="t">Categories already tried</div><div class="d">Mark all as tried to show Shield falling back to a paid add-on</div></div>
+      <div class="segs">
+        <button class="${S.tried.length?'':'on'}" data-act="tried" data-v="none">None</button>
+        <button class="${S.tried.length?'on':''}" data-act="tried" data-v="all">All</button>
+      </div>
+    </div>
     <div style="display:grid;gap:9px;margin-top:16px">
       <button class="btn ghost" data-act="reset">Reset the demo</button>
       <button class="btn" style="background:rgba(255,255,255,.12)" data-act="closeSheet">Close</button>
@@ -1232,7 +1358,18 @@ document.addEventListener('click', e => {
     render();
   }
   else if (a === 'shieldToggle'){ S.cartShield = S.cartShield === false; render(); }
-  else if (a === 'place'){ placeOrder(S.cartShield !== false); }
+  else if (a === 'place'){ placeOrder(); }
+  else if (a === 'addPick'){
+    const wasLocked = shieldMode() !== 'free';
+    const p = prod(id);
+    S.cart[id] = (S.cart[id]||0)+1;
+    render();
+    if (wasLocked && shieldMode() === 'free')
+      toast(`<b>Discovery Shield unlocked.</b> Free on your first ${catName(p.c)} order — 2-hour verified return if it's not right.`);
+    else
+      toast(`${p.ic} ${p.n} added to your cart.`);
+  }
+  else if (a === 'tried'){ S.tried = el.dataset.v === 'all' ? NEW_CATS.map(c=>c.id) : []; $('#sheet').innerHTML = demoSheet(); render(); }
   else if (a === 'open'){ S.activeOrder = id; S.screen = 'order'; render(); }
   else if (a === 'retStart'){ S.draft = {orderId:id, reason:null, photo:null}; S.screen = 'ret_reason'; render(); }
   else if (a === 'reason'){ S.draft.reason = id; render(); }
@@ -1247,7 +1384,7 @@ document.addEventListener('click', e => {
   else if (a === 'closeSheet'){ $('#sheet').classList.remove('open'); }
   else if (a === 'dm'){ S.demo[el.dataset.k] = !S.demo[el.dataset.k]; $('#sheet').innerHTML = demoSheet(); }
   else if (a === 'quota'){ S.shieldUsed = +el.dataset.n; $('#sheet').innerHTML = demoSheet(); render(); }
-  else if (a === 'reset'){ S.cart = {}; S.orders = []; S.shieldUsed = 0; S.draft = null; S.cartShield = undefined; S.screen = 'home'; $('#sheet').classList.remove('open'); render(); }
+  else if (a === 'reset'){ S.cart = {}; S.orders = []; S.shieldUsed = 0; S.tried = []; S.draft = null; S.cartShield = undefined; S.screen = 'home'; $('#sheet').classList.remove('open'); render(); }
 });
 
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sheet').classList.remove('open'); });
