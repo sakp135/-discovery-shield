@@ -270,12 +270,12 @@ nav .dot{position:absolute; transform:translate(14px,-4px); background:var(--red
 
 /* ============================== DATA ============================== */
 const CATS = [
-  {id:'veg',   name:'Fruits & Veg', ic:'🥬'},
-  {id:'dairy', name:'Dairy & Eggs', ic:'🥛'},
-  {id:'snack', name:'Snacks',       ic:'🍿'},
-  {id:'drink', name:'Beverages',    ic:'🥤'},
-  {id:'care',  name:'Personal Care',ic:'🧴'},
-  {id:'home',  name:'Household',    ic:'🧻'}
+  {id:'veg',   name:'Fruits & Veg', ic:'🥬', grocery:true},
+  {id:'dairy', name:'Dairy & Eggs', ic:'🥛', grocery:true},
+  {id:'snack', name:'Snacks',       ic:'🍿', grocery:false},
+  {id:'drink', name:'Beverages',    ic:'🥤', grocery:false},
+  {id:'care',  name:'Personal Care',ic:'🧴', grocery:false},
+  {id:'home',  name:'Household',    ic:'🧻', grocery:false}
 ];
 
 const PRODUCTS = [
@@ -458,6 +458,8 @@ function screenHome(){
     </div>
   </div>
 
+  ${homeDiscoveryCard()}
+
   <div class="sec" style="padding-top:0">
     <div class="sec-t">Shop by category</div>
     <div class="cats">
@@ -518,11 +520,18 @@ function screenCart(){
         </div>`).join('')}
     </div>
 
+    ${cartIsGroceryOnly() ? cartDiscoveryNudge() : ''}
+
     <div class="shield-card" style="margin-top:12px">
       <div style="display:flex; gap:12px; align-items:flex-start; position:relative; z-index:1">
         <div style="flex:1">
-          <h3>${SHIELD_SVG} Add Discovery Shield · ${money(SHIELD_FEE)}</h3>
-          <p>Must be switched on <b style="color:#fff">before you order</b> — the dark store applies the tamper seal while packing. It can't be added later.</p>
+          ${cartHasNewCategory() ? `
+            <h3>🎉 New category, Shield applied · ${money(SHIELD_FEE)}</h3>
+            <p>You're trying something new this order — <b style="color:#fff">Discovery Shield covers it automatically</b>. Tamper seal on packing, 2-hour verified return if it's not right.</p>
+          ` : `
+            <h3>${SHIELD_SVG} Add Discovery Shield · ${money(SHIELD_FEE)}</h3>
+            <p>Must be switched on <b style="color:#fff">before you order</b> — the dark store applies the tamper seal while packing. It can't be added later.</p>
+          `}
         </div>
         <button class="toggle ${on ? 'on' : ''}" data-act="shieldToggle" aria-label="Discovery Shield"></button>
       </div>
@@ -546,166 +555,145 @@ function screenCart(){
   <div class="bar"><button class="btn" data-act="place">Place order · ${money(b.total)}</button></div>`;
 }
 
-/* ============================== AI RECOMMENDATION ============================== */
-const OPENROUTER_KEY = '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';
+/* ============================== NEW-CATEGORY DISCOVERY ENGINE ============================== */
+/* Rules-based (Phase 1) — no external API. A category is "new" for this user if it isn't
+   grocery AND they haven't ordered from it yet this session. */
+const GROCERY_IDS = CATS.filter(c => c.grocery).map(c => c.id);
+const NEW_CATS = CATS.filter(c => !c.grocery);
 
-// Category mapping for discovery nudge
-const CAT_SIGNALS = {
-  veg:   { signal: "buying fresh vegetables and fruits regularly",    newCat: "Personal Care", newCatId: "care",  why: "Fresh eaters often care about skin and hair too." },
-  dairy: { signal: "ordering dairy and eggs regularly",               newCat: "Snacks",        newCatId: "snack", why: "Pair your breakfast staples with healthy snacks." },
-  snack: { signal: "buying snacks frequently",                        newCat: "Beverages",     newCatId: "drink", why: "Great snacks deserve great drinks." },
-  drink: { signal: "ordering beverages regularly",                    newCat: "Snacks",        newCatId: "snack", why: "Complete your snacking experience." },
-  care:  { signal: "buying personal care products",                   newCat: "Household",     newCatId: "home",  why: "Home care goes hand in hand with personal care." },
-  home:  { signal: "ordering household essentials",                   newCat: "Personal Care", newCatId: "care",  why: "Take care of your home and yourself." }
+const CAT_PITCH = {
+  snack: { headline: 'Snack cravings, sorted',        reason: 'Keep a stash ready for the next mid-week craving — delivered with your groceries.' },
+  drink: { headline: 'Something to sip on',           reason: 'A good drink makes the weekly grocery run feel a little less routine.' },
+  care:  { headline: 'Take care of yourself too',     reason: 'Your basket has the essentials sorted — this one is just for you.' },
+  home:  { headline: 'Round out your basket',         reason: "Household items you'll need eventually — might as well add them now." }
 };
 
-// AI recommendation state
-const AI = {
-  loading: false,
-  result: null,   // { heading, reason, products: [{name, emoji, price}] }
-  cartSnapshot: null,
-  error: null
-};
-
-async function fetchAIRecommendation(cartItemsList) {
-  if (!cartItemsList.length) return;
-
-  // Detect dominant category in cart
-  const catCounts = {};
-  cartItemsList.forEach(i => { catCounts[i.c] = (catCounts[i.c] || 0) + i.q; });
-  const topCat = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0][0];
-  const signal = CAT_SIGNALS[topCat] || CAT_SIGNALS.veg;
-  const cartNames = cartItemsList.map(i => i.n).join(", ");
-
-  const prompt = `You are an AI inside Blinkit quick commerce app in India.
-
-The user has these items in their cart: ${cartNames}
-They are ${signal.signal}.
-
-Suggest ONE product from the "${signal.newCat}" category that would complement their current cart perfectly.
-
-Respond in EXACTLY this format, no extra text:
-HEADING: [max 8 words, warm and natural]
-REASON: [1-2 sentences, personal and helpful, why this fits them right now]
-P1_NAME: [real Indian product name from ${signal.newCat} category]
-P1_EMOJI: [one emoji]
-P1_PRICE: ₹[realistic Indian price]
-P2_NAME: [another real product]
-P2_EMOJI: [one emoji]
-P2_PRICE: ₹[price]
-P3_NAME: [another real product]
-P3_EMOJI: [one emoji]
-P3_PRICE: ₹[price]`;
-
-  try {
-    AI.loading = true;
-    AI.error = null;
-    render();
-
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'HTTP-Referer': location.href,
-        'X-Title': 'Blinkit Discovery Shield'
-      },
-      body: JSON.stringify({
-        model: 'openrouter/free',
-        max_tokens: 300,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!r.ok) throw new Error('API error ' + r.status);
-    const d = await r.json();
-    const t = d.choices[0].message.content;
-    const g = k => { const m = t.match(new RegExp(k + ':\\s*(.+?)(?=\\n[A-Z_]|$)', 's')); return m ? m[1].trim() : ''; };
-
-    AI.result = {
-      newCat: signal.newCat,
-      newCatId: signal.newCatId,
-      heading: g('HEADING') || `Try ${signal.newCat} — Perfect Right Now`,
-      reason: g('REASON') || signal.why,
-      products: [
-        { name: g('P1_NAME'), emoji: g('P1_EMOJI') || '📦', price: g('P1_PRICE') || '₹199' },
-        { name: g('P2_NAME'), emoji: g('P2_EMOJI') || '📦', price: g('P2_PRICE') || '₹299' },
-        { name: g('P3_NAME'), emoji: g('P3_EMOJI') || '📦', price: g('P3_PRICE') || '₹399' }
-      ]
-    };
-    AI.cartSnapshot = cartNames;
-  } catch(e) {
-    AI.error = e.message;
-    AI.result = null;
-  } finally {
-    AI.loading = false;
-    render();
-  }
+function orderedCategoryIds(){
+  const set = new Set();
+  S.orders.forEach(o => o.items.forEach(i => set.add(i.c)));
+  return set;
 }
 
-function aiRecommendationCard(orderItems) {
-  // Use passed order items (from confirmation) or fall back to cart
-  const items = orderItems || cartItems();
-  if (!items.length) return '';
+function untriedNewCategories(){
+  const tried = orderedCategoryIds();
+  return NEW_CATS.filter(c => !tried.has(c.id));
+}
 
-  // Trigger AI fetch if items changed
-  const snap = items.map(i=>i.n).join(',');
-  if (snap !== AI.cartSnapshot && !AI.loading) {
-    setTimeout(() => fetchAIRecommendation(items), 400);
-    AI.cartSnapshot = snap;
-  }
+function cartIsGroceryOnly(){
+  const items = cartItems();
+  return items.length > 0 && items.every(i => GROCERY_IDS.includes(i.c));
+}
 
-  if (AI.loading) return `
-    <div class="shield-card" style="margin-top:12px">
-      <div style="position:relative;z-index:1">
-        <h3>🛡️ Discovery Shield — Finding your match…</h3>
-        <div style="margin-top:10px;display:flex;gap:5px;align-items:center">
-          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite"></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .15s;opacity:.7"></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .3s;opacity:.4"></div>
-          <span style="font-size:12px;color:#A9BEDE;margin-left:4px">AI is reading your cart…</span>
-        </div>
+function cartHasNewCategory(){
+  return cartItems().some(i => !GROCERY_IDS.includes(i.c));
+}
+
+function orderIsGroceryOnly(o){
+  return o.items.every(i => GROCERY_IDS.includes(i.c));
+}
+
+/* Build a lightweight "recommendation" for a category using real catalog products */
+function categoryPick(cat){
+  const pitch = CAT_PITCH[cat.id] || { headline: `Try ${cat.name}`, reason: 'Delivered with your groceries, protected by Discovery Shield.' };
+  const items = PRODUCTS.filter(p => p.c === cat.id).slice(0, 2);
+  return { ...cat, ...pitch, items };
+}
+
+function newCategoryPicks(limit){
+  return untriedNewCategories().slice(0, limit).map(categoryPick);
+}
+
+/* ---- Card renderers ---- */
+function categoryPickTile(p){
+  return `
+    <div class="opt" style="margin-bottom:8px" data-act="go" data-s="cat" data-cat="${p.id}">
+      <div class="ic">${p.ic}</div>
+      <div style="flex:1">
+        <div class="t">${p.headline}</div>
+        <div class="d">${p.reason}</div>
+        ${p.items.length ? `<div style="margin-top:6px;display:flex;gap:6px">${p.items.map(i=>`<span class="pill n">${i.ic} ${i.n}</span>`).join('')}</div>` : ''}
       </div>
     </div>`;
+}
 
-  if (!AI.result) return '';
+/* Home page — always-on discovery teaser */
+function homeDiscoveryCard(){
+  const picks = newCategoryPicks(3);
+  if (!picks.length) return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <h3>🎉 You've explored every category</h3>
+        <p>Every category on Blinkit is now familiar territory for you. Nice work.</p>
+      </div>
+    </div>`;
+  return `
+    <div class="sec" style="padding-top:0">
+      <div class="sec-t">
+        <span style="display:inline-flex;align-items:center;gap:6px">✨ New for you <span class="pill n" style="font-size:9px">Shield protected</span></span>
+      </div>
+      ${picks.map(categoryPickTile).join('')}
+    </div>`;
+}
 
-  const r = AI.result;
+/* Cart screen — nudge shown only when the cart is grocery-only */
+function cartDiscoveryNudge(){
+  const picks = newCategoryPicks(3);
+  if (!picks.length) return '';
   return `
     <div class="shield-card" style="margin-top:12px">
       <div style="position:relative;z-index:1">
         <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
-          ✨ AI-Detected for You
+          ✨ Before you check out
         </div>
-        <h3 style="font-size:15px;margin-bottom:5px">🛡️ ${r.heading}</h3>
-        <p style="margin-bottom:12px">${r.reason}</p>
-
-        <div style="background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.18);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:#A9BEDE;line-height:1.6">
-          <b style="color:#fff;display:block;margin-bottom:3px">🛡️ Discovery Shield — 2-Hour Easy Return</b>
-          Try risk-free. Changed your mind? Return within <b style="color:#fff">2 hours of delivery</b> — one photo, AI verified, delivery partner collects on next run.
-        </div>
-
-        <div style="display:grid;gap:8px;margin-bottom:12px">
-          ${r.products.filter(p=>p.name).map(p=>`
-            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:24px">${p.emoji}</span>
+        <h3 style="font-size:15px;margin-bottom:5px">🛡️ Add something new, risk-free</h3>
+        <p style="margin-bottom:12px">Your cart is all groceries. Add one new-category item now and it's covered by the same 2-hour Discovery Shield return.</p>
+        <div style="display:grid;gap:8px">
+          ${picks.map(p => `
+            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px;cursor:pointer" data-act="go" data-s="cat" data-cat="${p.id}">
+              <span style="font-size:22px">${p.ic}</span>
               <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">🛡️ Shield Protected · 2-hr return</div>
+                <div style="font-size:13px;font-weight:600;color:#fff">${p.name}</div>
+                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">🛡️ Shield protected · 2-hr return</div>
               </div>
-              <div style="text-align:right;flex-shrink:0">
-                <div style="font-size:13px;font-weight:700;color:#F8CB46">${p.price}</div>
-              </div>
+              <div style="font-size:16px;color:#6FA8FF">›</div>
             </div>`).join('')}
         </div>
-
-        <button class="btn" data-act="go" data-s="cat" data-cat="${r.newCatId}"
-          style="width:100%;background:var(--green);border-color:var(--green);font-size:13px;padding:11px">
-          Explore ${r.newCat} with Shield →
-        </button>
       </div>
     </div>`;
 }
+
+/* Order confirmation — shown only if the order just placed was grocery-only */
+function confirmationDiscoveryCard(o){
+  if (!orderIsGroceryOnly(o)) return '';
+  const picks = newCategoryPicks(3);
+  if (!picks.length) return '';
+  return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
+          ✨ Recommended for next time
+        </div>
+        <h3 style="font-size:15px;margin-bottom:5px">🛡️ 3 categories worth trying</h3>
+        <p style="margin-bottom:12px">Order's confirmed — your trust is highest right now. Add any of these next time, alongside your groceries, and Discovery Shield covers it automatically.</p>
+        <div style="display:grid;gap:8px;margin-bottom:12px">
+          ${picks.map(p => `
+            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px;cursor:pointer" data-act="go" data-s="cat" data-cat="${p.id}">
+              <span style="font-size:22px">${p.ic}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:#fff">${p.name}</div>
+                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">${p.headline}</div>
+              </div>
+              <div style="font-size:16px;color:#6FA8FF">›</div>
+            </div>`).join('')}
+        </div>
+        <div style="background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.18);border-radius:10px;padding:10px 12px;font-size:11.5px;color:#A9BEDE;line-height:1.6">
+          <b style="color:#fff;display:block;margin-bottom:3px">🛡️ How the protection works</b>
+          Add groceries + one of these together, keep Shield on at checkout, and that new item gets a 2-hour verified return — no separate opt-in needed.
+        </div>
+      </div>
+    </div>`;
+}
+
 
 function screenTrack(){
   const o = order(S.activeOrder);
@@ -743,7 +731,7 @@ function screenTrack(){
 
     ${done ? `<div style="margin-top:12px"><button class="btn ghost" data-act="open" data-id="${o.id}">View order & return options</button></div>` : ''}
 
-    ${o.stage === 0 ? aiRecommendationCard(o.items) : ''}
+    ${o.stage === 0 ? confirmationDiscoveryCard(o) : ''}
   </div>`;
 }
 
