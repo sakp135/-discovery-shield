@@ -310,7 +310,7 @@ const REASONS = [
 
 const SHIELD_FEE = 9;
 const QUOTA = 3;
-const QUARTER_END = '30 Sep 2026';
+const QUARTER_END = '30 Nov 2026';
 
 /* ============================== STATE ============================== */
 const S = {
@@ -546,6 +546,167 @@ function screenCart(){
   <div class="bar"><button class="btn" data-act="place">Place order · ${money(b.total)}</button></div>`;
 }
 
+/* ============================== AI RECOMMENDATION ============================== */
+const OPENROUTER_KEY = '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';
+
+// Category mapping for discovery nudge
+const CAT_SIGNALS = {
+  veg:   { signal: "buying fresh vegetables and fruits regularly",    newCat: "Personal Care", newCatId: "care",  why: "Fresh eaters often care about skin and hair too." },
+  dairy: { signal: "ordering dairy and eggs regularly",               newCat: "Snacks",        newCatId: "snack", why: "Pair your breakfast staples with healthy snacks." },
+  snack: { signal: "buying snacks frequently",                        newCat: "Beverages",     newCatId: "drink", why: "Great snacks deserve great drinks." },
+  drink: { signal: "ordering beverages regularly",                    newCat: "Snacks",        newCatId: "snack", why: "Complete your snacking experience." },
+  care:  { signal: "buying personal care products",                   newCat: "Household",     newCatId: "home",  why: "Home care goes hand in hand with personal care." },
+  home:  { signal: "ordering household essentials",                   newCat: "Personal Care", newCatId: "care",  why: "Take care of your home and yourself." }
+};
+
+// AI recommendation state
+const AI = {
+  loading: false,
+  result: null,   // { heading, reason, products: [{name, emoji, price}] }
+  cartSnapshot: null,
+  error: null
+};
+
+async function fetchAIRecommendation(cartItemsList) {
+  if (!cartItemsList.length) return;
+
+  // Detect dominant category in cart
+  const catCounts = {};
+  cartItemsList.forEach(i => { catCounts[i.c] = (catCounts[i.c] || 0) + i.q; });
+  const topCat = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0][0];
+  const signal = CAT_SIGNALS[topCat] || CAT_SIGNALS.veg;
+  const cartNames = cartItemsList.map(i => i.n).join(", ");
+
+  const prompt = `You are an AI inside Blinkit quick commerce app in India.
+
+The user has these items in their cart: ${cartNames}
+They are ${signal.signal}.
+
+Suggest ONE product from the "${signal.newCat}" category that would complement their current cart perfectly.
+
+Respond in EXACTLY this format, no extra text:
+HEADING: [max 8 words, warm and natural]
+REASON: [1-2 sentences, personal and helpful, why this fits them right now]
+P1_NAME: [real Indian product name from ${signal.newCat} category]
+P1_EMOJI: [one emoji]
+P1_PRICE: ₹[realistic Indian price]
+P2_NAME: [another real product]
+P2_EMOJI: [one emoji]
+P2_PRICE: ₹[price]
+P3_NAME: [another real product]
+P3_EMOJI: [one emoji]
+P3_PRICE: ₹[price]`;
+
+  try {
+    AI.loading = true;
+    AI.error = null;
+    render();
+
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'HTTP-Referer': location.href,
+        'X-Title': 'Blinkit Discovery Shield'
+      },
+      body: JSON.stringify({
+        model: 'openrouter/free',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!r.ok) throw new Error('API error ' + r.status);
+    const d = await r.json();
+    const t = d.choices[0].message.content;
+    const g = k => { const m = t.match(new RegExp(k + ':\\s*(.+?)(?=\\n[A-Z_]|$)', 's')); return m ? m[1].trim() : ''; };
+
+    AI.result = {
+      newCat: signal.newCat,
+      newCatId: signal.newCatId,
+      heading: g('HEADING') || `Try ${signal.newCat} — Perfect Right Now`,
+      reason: g('REASON') || signal.why,
+      products: [
+        { name: g('P1_NAME'), emoji: g('P1_EMOJI') || '📦', price: g('P1_PRICE') || '₹199' },
+        { name: g('P2_NAME'), emoji: g('P2_EMOJI') || '📦', price: g('P2_PRICE') || '₹299' },
+        { name: g('P3_NAME'), emoji: g('P3_EMOJI') || '📦', price: g('P3_PRICE') || '₹399' }
+      ]
+    };
+    AI.cartSnapshot = cartNames;
+  } catch(e) {
+    AI.error = e.message;
+    AI.result = null;
+  } finally {
+    AI.loading = false;
+    render();
+  }
+}
+
+function aiRecommendationCard(orderItems) {
+  // Use passed order items (from confirmation) or fall back to cart
+  const items = orderItems || cartItems();
+  if (!items.length) return '';
+
+  // Trigger AI fetch if items changed
+  const snap = items.map(i=>i.n).join(',');
+  if (snap !== AI.cartSnapshot && !AI.loading) {
+    setTimeout(() => fetchAIRecommendation(items), 400);
+    AI.cartSnapshot = snap;
+  }
+
+  if (AI.loading) return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <h3>🛡️ Discovery Shield — Finding your match…</h3>
+        <div style="margin-top:10px;display:flex;gap:5px;align-items:center">
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .15s;opacity:.7"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:#6FA8FF;animation:sp .8s linear infinite .3s;opacity:.4"></div>
+          <span style="font-size:12px;color:#A9BEDE;margin-left:4px">AI is reading your cart…</span>
+        </div>
+      </div>
+    </div>`;
+
+  if (!AI.result) return '';
+
+  const r = AI.result;
+  return `
+    <div class="shield-card" style="margin-top:12px">
+      <div style="position:relative;z-index:1">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(111,168,255,.12);border-radius:20px;padding:3px 10px;font-size:10.5px;color:#6FA8FF;font-weight:700;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase">
+          ✨ AI-Detected for You
+        </div>
+        <h3 style="font-size:15px;margin-bottom:5px">🛡️ ${r.heading}</h3>
+        <p style="margin-bottom:12px">${r.reason}</p>
+
+        <div style="background:rgba(111,168,255,.08);border:1px solid rgba(111,168,255,.18);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:#A9BEDE;line-height:1.6">
+          <b style="color:#fff;display:block;margin-bottom:3px">🛡️ Discovery Shield — 2-Hour Easy Return</b>
+          Try risk-free. Changed your mind? Return within <b style="color:#fff">2 hours of delivery</b> — one photo, AI verified, delivery partner collects on next run.
+        </div>
+
+        <div style="display:grid;gap:8px;margin-bottom:12px">
+          ${r.products.filter(p=>p.name).map(p=>`
+            <div style="background:rgba(255,255,255,.06);border-radius:9px;padding:9px 11px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:24px">${p.emoji}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                <div style="font-size:10.5px;color:#6FA8FF;margin-top:2px">🛡️ Shield Protected · 2-hr return</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:13px;font-weight:700;color:#F8CB46">${p.price}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+
+        <button class="btn" data-act="go" data-s="cat" data-cat="${r.newCatId}"
+          style="width:100%;background:var(--green);border-color:var(--green);font-size:13px;padding:11px">
+          Explore ${r.newCat} with Shield →
+        </button>
+      </div>
+    </div>`;
+}
+
 function screenTrack(){
   const o = order(S.activeOrder);
   const done = o.stage === 3;
@@ -581,6 +742,8 @@ function screenTrack(){
     </div>
 
     ${done ? `<div style="margin-top:12px"><button class="btn ghost" data-act="open" data-id="${o.id}">View order & return options</button></div>` : ''}
+
+    ${o.stage === 0 ? aiRecommendationCard(o.items) : ''}
   </div>`;
 }
 
@@ -1075,7 +1238,11 @@ document.addEventListener('click', e => {
   if (a === 'inc'){ S.cart[id] = (S.cart[id]||0)+1; render(); }
   else if (a === 'dec'){ S.cart[id]--; if (S.cart[id] <= 0) delete S.cart[id]; render(); }
   else if (a === 'cat'){ S.cat = id; S.screen = 'cat'; render(); }
-  else if (a === 'go'){ S.screen = el.dataset.s; render(); }
+  else if (a === 'go'){
+    S.screen = el.dataset.s;
+    if (el.dataset.cat) { S.cat = el.dataset.cat; }
+    render();
+  }
   else if (a === 'shieldToggle'){ S.cartShield = S.cartShield === false; render(); }
   else if (a === 'place'){ placeOrder(S.cartShield !== false); }
   else if (a === 'open'){ S.activeOrder = id; S.screen = 'order'; render(); }
